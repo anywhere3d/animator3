@@ -1,0 +1,21 @@
+
+    .alert-small {max-width:70%;}
+    .alert-normal {max-width:80%;}
+    .alert-icon {width:50px; height:50px; display:inline-block; margin-right:10px; float:right;}
+    .icon-success {background:url("/icons/anywhere3d-success.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-cancel {background:url("/icons/anywhere3d-cancel.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-warning {background:url("/icons/anywhere3d-warning.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-error {background:url("/icons/anywhere3d-error.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-logo {background:url("/icons/anywhere3d-girls-logo.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-bug {background:url("/icons/anywhere3d-bug.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+    .icon-web {background:url("/icons/anywhere3d-web-bookmark.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0);}
+
+
+
+
+
+
+
+
+
+
