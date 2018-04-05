@@ -1,0 +1,67 @@
+<style>
+    #droplist-bones { position:absolute; left:150px; width:150px; font-size:15px; color:#000000; }
+    #bone-label { position:absolute; left:0px; right:0px; top:0px; font-size:1.3em; text-align:center; }
+    #bone-label-slider { font-size:1em; margin-bottom:15px; }
+    #current-bone-select { padding-bottom:13px; } 
+    #bone-divider { margin-bottom:15px; }
+</style>
+
+<div id="bone-label-slider" class="slider-row">
+    <div id="bone-label">Bone:&nbsp;<span id="bone-label-selected-name">Bone</span></div>
+</div>
+
+<div id="current-bone-select" class="control-container">
+    <label for="droplist-bones" id="droplist-label">Selected Bone:</label>
+    <select id="droplist-bones" name="BONES" size="1">
+        <option value="Armature" selected>Armature</option>
+        <option value="Head">Head</option>
+        <option value="Neck">Neck</option>
+        <option value="Torso">Torso</option>
+        <option value="Hip">Hip</option>
+        <option value="Arms">Arms</option>
+        <option value="Legs">Legs</option>
+    </select>
+</div>
+
+<div id="bone-divider" class="reset-container"></div>
+
+<script>
+
+//  boneSelector.js
+
+    var boneLabelSelectedNameSelector = "#bone-label-selected-name";
+    var droplistBonesSelector = "#droplist-bones";
+    var bonesDroplist = $(droplistBonesSelector)[0];
+
+    $(droplistBonesSelector).on("change", function(e){ 
+        newCurrentBoneSelected(); 
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

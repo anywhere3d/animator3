@@ -1,0 +1,3240 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>animator-editor v0.3.0</title>
+    <link rel="icon" type="image/png" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/bootbox-dialoges.css">
+    <link rel="stylesheet" href="/css/buttons.css">
+    <link rel="stylesheet" href="/css/side-panels.css">
+    <link rel="stylesheet" href="/css/messg.css" >
+    <link rel="stylesheet" href="/css/spectrum.css">
+    <link rel="stylesheet" href="/css/colorpicker.css">
+    <link rel="stylesheet" href="/css/spinner.css">
+    <link rel="stylesheet" href="/css/jquery-ui.css">
+    <link rel="stylesheet" href="/css/alerts.css">
+    <link rel="stylesheet" href="/css/panel-ui.css">
+    <link rel="stylesheet" href="/css/anywhere3d.css">
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/w3.js"></script>
+    <script> debugMode = true;</script>
+
+</head>
+
+
+<body>
+
+<style>
+/*  animator.css  */
+    body { margin:0px; height:100vh; overflow:hidden; font-family: Arial, sans-serif; }
+    canvas { display:block !important; cursor:move; -ms-touch-action:none; touch-action:none; }
+    #body-section { 
+        height:100%; padding-top:0px; padding-bottom:0px; 
+        background-color:rgba(0,0,0,1); overflow:hidden; 
+    }
+    #render-container { height:100%; opacity:1; background-color:rgb(0,0,0); }
+</style>
+
+    <!-- SIDE PANELS -->
+
+<style>
+/*animator-sidepanels.css*/
+    h1, h2, h3, h4, h5, h6, label, 
+    #left-side, #left-side-content,
+    #right-side, #right-side-content,
+    .btn, .btn-primary, .btn-success,
+    .btn-info, .btn-default,
+    .btn-warning, .btn-danger,
+    .form-group, .form-control {
+        letter-spacing: 0px;
+        font-family:Arial, sans-serif;
+    }
+    .row { margin-left:-0.9375rem; margin-right:0rem; }
+    hr { height:0px; margin-top:1rem; border-top:1px solid #ffffff;}
+    .form-control { min-height:2em; }
+    .btn-primary, .btn-success, .btn-default, .btn-info, 
+    .btn-warning, .btn-danger, .btn-white { 
+        padding:0.5rem 1rem; font-size:0.875rem; border-radius:4px; cursor:pointer; 
+    }
+    .btn-white-outline { background:none; border:solid 1px white; }
+    .btn-success { background-color:#006900; border-color:#006900; }
+    .btn-success:hover { background-color:#009900; }
+    .detach { 
+        display:inline-block; height:10px; width:10px; vertical-align:middle;
+        background:url("/icons/detach-close-icon.png") 50% 50% / contain no-repeat rgba(255, 255, 255, 0); 
+    }
+    #pin-tip  { position:absolute; max-width:180; max-height:20px; top:5px; left:-170px; text-align:left; overflow:hidden;  z-index:1000;}
+    #left-side-content, #right-side-content { top:20px; bottom:20px; overflow-y:auto; }
+    .nav-btn + .nav-btn { padding-left: 1rem; }
+    .scroll-control-left {left:5px;}
+    .scroll-control-right {right:30px;}
+    .scroll-control-left, .scroll-control-right {
+        position: absolute; width: 30px; height: 30px; text-align: center; background: #4E443C; color: #fff; text-decoration: none;
+        text-shadow: 0 0 1px #000; font: 24px/27px Arial, sans-serif; -webkit-border-radius: 30px; -moz-border-radius: 30px; border-radius: 30px;
+        -webkit-box-shadow: 0 0 4px #F0EFE7; -moz-box-shadow: 0 0 4px #F0EFE7; box-shadow: 0 0 4px #F0EFE7;
+    }
+    .scroll-right{ -webkit-transform: translateX(+100); -webkit-transition: opacity 250ms ease-out;}
+    .scroll-left{ -webkit-transform: translateX(-100); -webkit-transition: opacity 250ms ease-out;}
+</style>
+
+
+<style>
+/*animator-components.css*/
+    .control-container { 
+        left:0px; right:0px; margin-bottom:1px; padding:10px; 
+        color: #ffffff; border:1px solid #ffffff; border-radius:9px; 
+    }
+    .slider-row { padding-left:10px; padding-right:5px; }
+    .dynamic-label  { position:absolute; width:18%; font-size:11px; padding-top:5px; }
+    .dynamic-slider { width:60%; margin-left:22%; }
+    .dynamic-output { 
+        position:absolute; margin-right:10px; width:18%; right:15px;
+        color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+        font-weight:bold; font-size:1em; text-align:right; font-family:Arial;
+    } 
+    .reset-container { 
+        padding:1px; margin-bottom:5px; font-weight:normal; 
+        font-size:0.8em; text-align:left; margin-top:5px; 
+    }
+    .reset-container a { cursor:pointer; }
+    #hover { opacity:0.5; }
+    .reset-container a span { color:gray !important; }
+	.reset-container a:link {color:#ccf !important; text-decoration:initial;}
+    .reset-container a:visited span {color:#ccf !important; text-decoration:initial;}
+    .reset-container a:hover span  {color:#0f0 !important; text-decoration:initial;}
+    .reset-container a:active span {color:#f00 !important; text-decoration:initial;}
+    .load-buttons { display:inline-block; margin-bottom:30px; width:100%; }
+    .btn-white { color:#fff; }
+    #load-skinned-button, #load-pose-button, #load-data-button, #load-bvh-button { width:49%; }
+    #export-data, #export-pose { width:49%; margin-left:0px; }
+    #exports-holder { margin-bottom:30px; }
+    #crazy-pose { width:100%; margin-left:0px; }
+    #load-skinned-button:hover, #load-pose-button:hover, #load-data-button:hover, #load-bvh-button:hover,
+    #export-data:hover, #export-pose:hover, #crazy-pose:hover { color:#0275d8 !important; }
+    #animation-loop, #hidden-helpers, #manual-play { float:right; }    
+</style>
+
+<section class="mbr-section mbr-after-navbar" id="body-section">
+
+    <!-- SCENE -->
+
+    <div id="render-container" class="mbr-overlay"></div>
+
+    <!-- LEFT PANEL -->
+
+    <div id="left-side">
+        <div id="left-side-pinbtn" title="click this to pin/unpin panel"></div>
+
+        <div id="left-side-content">
+            <div id="avatar-editor-left-panel">
+
+                <div id="imports-holder">
+                    <div class="slider-row" style="font-size:1.3em; margin-bottom:15px;">Import:</div>
+                    <div class="load-buttons">
+                        <a id="load-bvh-button" class="btn btn-white btn-white-outline">Import BVH</a>
+                        <input type="file" id="load-bvh" style="display:none;">
+
+                        <a id="load-skinned-button" class="btn btn-white btn-white-outline">Import Skinned</a>
+                        <input type="file" id="load-skinned" style="display:none;">
+                    </div>
+                    <div class="load-buttons">
+                        <a id="load-pose-button" class="btn btn-white btn-white-outline">Import Pose</a>
+                        <input type="file" id="load-pose" style="display:none;">
+
+                        <a id="load-data-button" class="btn btn-white btn-white-outline">Import Animation</a>
+                        <input type="file" id="load-data" style="display:none;">
+                    </div>
+                </div>
+
+                <div id="exports-holder">
+                    <div class="slider-row" style="font-size:1.3em; margin-top:15px; margin-bottom:15px;">Export:</div>
+                    <a id="export-pose" class="btn btn-white btn-white-outline">Export Pose</a>
+                    <a id="export-data" class="btn btn-white btn-white-outline">Export Data</a>
+                </div>
+
+                <div id="options-holder">
+                    <div class="slider-row" style="font-size:1.3em; margin-top:15px; margin-bottom:15px;">Play Options:
+                        <div class="slider-row" style="font-size:0.75em; margin-top:1em; margin-bottom:1em;">Loop:
+                            <input type="checkbox" id="animation-loop" name="loop" checked="true" title="loop">
+                        </div>
+                        <div class="slider-row" style="font-size:0.75em; margin-bottom:1em;">Manual autoplay:
+                            <input type="checkbox" id="manual-play" name="manualplay" checked title="If checked, animation autoplay at mouse buttons pressed down.">
+                        </div>
+                        <div class="slider-row" style="font-size:0.75em; margin-bottom:1em;">Hidden helpers:
+                            <input type="checkbox" id="hidden-helpers" name="hiddenhelpers" checked title="If checked, ground helpers are not visible at play time.">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+
+    <div id="right-side">
+        <div id="right-side-pinbtn" title="click this to pin/unpin panel"></div>
+
+        <div id="right-side-content">
+
+            <div id="outfit-editor-right-panel">
+                <div id="bones-holder">
+                    <style>
+                        #droplist-bones { position:absolute; left:150px; width:150px; font-size:15px; color:#000000; }
+                        #bone-label { position:absolute; left:0px; right:0px; top:0px; font-size:1.3em; text-align:center; }
+                        #bone-label-slider { font-size:1em; margin-bottom:15px; }
+                        #current-bone-select { padding-bottom:13px; } 
+                        #bone-divider { margin-bottom:15px; }
+                    </style>
+                    
+                    <div id="bone-label-slider" class="slider-row">
+                        <div id="bone-label">Bone:&nbsp;<span id="bone-label-selected-name">Bone</span></div>
+                    </div>
+                    
+                    <div id="current-bone-select" class="control-container">
+                        <label for="droplist-bones" id="droplist-label">Selected Bone:</label>
+                        <select id="droplist-bones" name="BONES" size="1">
+                            <option value="Armature" selected>Armature</option>
+                            <option value="Head">Head</option>
+                            <option value="Neck">Neck</option>
+                            <option value="Torso">Torso</option>
+                            <option value="Hip">Hip</option>
+                            <option value="Arms">Arms</option>
+                            <option value="Legs">Legs</option>
+                        </select>
+                    </div>
+                    
+                    <div id="bone-divider" class="reset-container"></div>
+                </div>
+
+                <div id="position-holder">
+                    <div id="position-sliders" class="control-container">
+                        <div class="slider-row">
+                            <label for="slider-pos-x" id="label-pos-x" class="dynamic-label">position&nbsp;<strong>x:</strong></label>
+                            <input type="range" id="slider-pos-x" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+                            <input type="number" id="output-pos-x" class="dynamic-output position-output" value="0" step="0.1">
+                        </div>
+                        <div class="slider-row">
+                            <label for="slider-pos-y" id="label-pos-y" class="dynamic-label">position&nbsp;<strong>y:</strong></label>
+                            <input type="range" id="slider-pos-y" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+                            <input type="number" id="output-pos-y" class="dynamic-output position-output" value="0" step="0.1">
+                        </div>
+                        <div class="slider-row">
+                            <label for="slider-pos-z" id="label-pos-z" class="dynamic-label">position&nbsp;<strong>z:</strong></label>
+                            <input type="range" id="slider-pos-z" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+                            <input type="number" id="output-pos-z" class="dynamic-output position-output" value="0" step="0.1">
+                        </div>
+                    </div>
+                    
+                    <li class="reset-container">
+                        <a><span id="reset-position">Reset bones position</span></a>
+                    </li>
+                </div>
+
+                <div id="rotation-holder">
+                    <div id="rotation-sliders" class="control-container">
+                        <div class="slider-row">
+                            <label for="slider-rot-x" id="label-rot-x" class="dynamic-label">rotation&nbsp;<strong>x:</strong></label>
+                            <input type="range" id="slider-rot-x" class="dynamic-slider" min="-1" max="1" value="0" step="0.1">
+                            <input type="number" id="output-rot-x" class="dynamic-output rotation-output" min="-180" max="180" value="0" step="1">
+                        </div>
+                        <div class="slider-row">
+                            <label for="slider-rot-y" id="label-rot-y" class="dynamic-label">rotation&nbsp;<strong>y:</strong></label>
+                            <input type="range" id="slider-rot-y" class="dynamic-slider" min="-1" max="1" value="0" step="0.1">
+                            <input type="number" id="output-rot-y" class="dynamic-output rotation-output" min="-180" max="180" value="0" step="1">
+                        </div>
+                        <div class="slider-row">
+                            <label for="slider-rot-z" id="label-rot-z" class="dynamic-label">rotation&nbsp;<strong>z:</strong></label>
+                            <input type="range" id="slider-rot-z" class="dynamic-slider" min="-1" max="1" value="0" step="0.1">
+                            <input type="number" id="output-rot-z" class="dynamic-output rotation-output" min="-180" max="180" value="0" step="1">
+                        </div>
+                    </div>
+                    
+                    <li class="reset-container">
+                        <a><span id="reset-rotation">Reset bones rotation</span></a>
+                    </li>
+                </div>
+
+                <div id="scale-holder">
+                    <div class="control-container">
+                        <div class="slider-row">
+                            <label for="slider-scale-uniform" class="dynamic-label">Scale <strong>xyz</strong></label>
+                            <input type="range" id="slider-scale-uniform"  class="dynamic-slider" min="0.9" max="1.1" value="1"step="0.01">
+                            <input type="number" id="output-scale-uniform" class="dynamic-output uniform-scale-output" value="0"  step="0.1">
+                        </div>
+                    </div>
+                    
+                    <li class="reset-container">
+                        <a><span id="reset-scale">Reset bones scale</span></a>
+                    </li>
+                    
+                    <div id="scale-sliders" class="control-container">
+                        <div class="slider-row">
+                            <label for="slider-scl-x" id="label-scl-x" class="dynamic-label">scale&nbsp;<strong>x:</strong></label>
+                            <input type="range" id="slider-scl-x" class="dynamic-slider" min="0.9" max="1.1" value="1" step="0.01">
+                            <input type="number" id="output-scl-x" class="dynamic-output scale-output" value="1" step="0.1">
+                        </div>
+                        <div class="slider-row">
+                            <label for="slider-scl-y" id="label-scl-y" class="dynamic-label">scale&nbsp;<strong>y:</strong></label>
+                            <input type="range" id="slider-scl-y" class="dynamic-slider" min="0.9" max="1.1" value="1" step="0.01">
+                            <input type="number" id="output-scl-y" class="dynamic-output scale-output" value="1" step="0.1">
+                        </div>
+                        <div class="slider-row">
+                            <label for="slider-scl-z" id="label-scl-z" class="dynamic-label">scale&nbsp;<strong>z:</strong></label>
+                            <input type="range" id="slider-scl-z" class="dynamic-slider" min="0.9" max="1.1" value="1" step="0.01">
+                            <input type="number" id="output-scl-z" class="dynamic-output scale-output" value="1" step="0.1">
+                        </div>
+                    </div>
+                    
+                    <div class="reset-container"></div>
+                </div>
+
+                <div id="settings-holder">
+                    <style>
+                        #animation-name { margin-left:22%; font-family:Arial, sans-serif; font-size:12px; width:75%; color:black;}
+                    </style>
+                    <div id="animation-options" class="control-container">
+                        <div class="slider-row">
+                            <label for="slider-dur" class="dynamic-label">Duration&nbsp;<strong>:</strong></label>
+                            <input type="range" id="slider-dur" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+                            <input type="number" id="output-dur" value="3" class="dynamic-output" min="1" max="10" step="0.1">
+                        </div>
+                        <div class="slider-row">
+                            <label for="scl-time-slider" class="dynamic-label">Speed</label>
+                            <input type="range" id="slider-timescale"class="dynamic-slider"  min="0" max="2" value="0" step="0.1">
+                            <input type="number" id="output-timescale" value="0" class="dynamic-output" step="0.1">
+                        </div>
+                        <div class="slider-row">
+                            <label for="slider-fps" class="dynamic-label">Fps</label>
+                            <input type="range" id="slider-fps"class="dynamic-slider"  min="0" max="60" value="25" step="1">
+                            <input type="number" id="output-fps" value="25" class="dynamic-output" step="1">
+                        </div>
+                        <div class="slider-row">
+                            <label for="animation-name" class="dynamic-label">Name:<strong></strong></label>
+                            <input type="text" id="animation-name" maxLength="128" placeholder="animation name">
+                        </div>
+                    </div>
+                    
+                    <style>
+                        .helper { width:33%; padding-right:10px; }
+                    </style>
+                    <div class="reset-container">
+                        <li><a class="helper"><span id="avatar-helper">Show Avatar</span></a></li>
+                        <li><a class="helper"><span id="bones-helper">Show Bones</span></a></li>
+                        <li><a class="helper"><span id="reset-pose">Rest Pose</span></a></li>
+                        <li><a class="helper"><span id="remove-keys">Remove Keymarks</span></a></li>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+    <!-- FOOTER -->
+
+
+<style>
+    #footer1-1f { background-color: rgb(27,27,27); padding-top:0px; padding-bottom:80px; }
+    #animator-container {
+        position:absolute; bottom:5px; left:10px; right:10px; height:50px; display:block;
+        border:1px solid #ffffff;  border-radius:4px; color:#fff; text-align:left; 
+    }
+    #label-timer        { position:absolute; left:10px; bottom:10px; font-size:1.5em; margin-bottom:0px;}
+    #output-timer       { position:absolute; left:65px; bottom:10px; font-size:1.5em; }
+    #status-msgr        { position:absolute; left:10px; top:-25px; color:#fff; font-size:0.7em; display:none; }
+    #animation-buttons  { position:absolute; top:15px; left:120px; }
+/*  #animation-play     { position:absolute; left:140px; }  */
+/*  #animation-add      { position:absolute; left:200px; }  */
+    #animation-remove   { position:absolute; top:5px; right:4px; }
+    #timer-container    { position:absolute; left:320px; right:120px; bottom:13px; border:0px solid #ffffff; }
+    #time-container,
+    #keys-container     { position:absolute; left:320px; right:120px; top:-60px; height:50px; border:0px solid #ffff00; z-index:1000; }
+/*  .keymark            { transform:translateX(-16px); }  */
+/*  .keymark            { position:absolute; top:10px; width:auto; height:auto; background-color:#ff0; border:2px solid #ff0; 
+                          border-radius:3px; cursor:pointer; color:#000; font-size14px; font-weight:bold; z-index:1001 !important; }    */
+    #slider-timer       { width:100%; }
+    .key-exist          { color:#090; }
+
+</style>
+
+<footer class="mbr-small-footer mbr-section mbr-section-nopadding" id="footer1-1f">
+    <div id="animator-container">
+        <label for="slider-timer" id="label-timer">time:</label>
+        <div id="timer-container">
+            <input type="range" min="0" max="3" value="0" class="timerslider" id="slider-timer" step="0.01"> 
+        </div>
+        <div id="time-container" tabindex="-1"></div>
+        <div id="keys-container" tabindex="-1"></div>
+        <strong><output for="slider-timer" class="timeroutput" id="output-timer">0</output></strong>
+        <div id="animation-buttons">
+            <a id="animation-play" class="btn btn-white btn-white-outline">Play</a> 
+            <a id="animation-add" class="btn btn-white btn-white-outline">Add Key</a> 
+        </div>
+        <a id="animation-remove" class="btn btn-white btn-white-outline">Delete Key</a> 
+        <div id="status-msgr">Status messager</div>
+    </div>
+</footer>
+
+    <!-- BOOTSTRAP BOOTBOX -->
+
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script src="/bootstrap/js/bootbox.min.js"></script>
+<script src="/js/alerts.js"></script>
+<script src="/js/DeviceDetector.js"></script>
+
+        <!-- THREEJS -->
+
+<script src="/animator/v/0.3.0/three/three.js"></script>
+<script src="/animator/v/0.3.0/three/EditorControls.js"></script>
+<script src="/animator/v/0.3.0/three/FirstPersonControls.js"></script>
+<script src="/animator/v/0.3.0/three/Detector.js"></script>
+<script src="/animator/v/0.3.0/three/Projector.js"></script>
+<!-- script src="/animator/v/0.3.0/three/KeyboardState.js"></script -->
+<script src="/animator/v/0.3.0/three/Animation.js"></script>
+<script src="/animator/v/0.3.0/three/AnimationHandler.js"></script>
+<script src="/animator/v/0.3.0/three/KeyFrameAnimation.js"></script>
+<script src="/animator/v/0.3.0/three/BVHImport.js"></script>
+
+<script src="/animator/v/0.3.0/js/SceneHelpers.js"></script>
+<script src="/animator/v/0.3.0/js/SidePanels.js"></script>
+<script src="/animator/v/0.3.0/js/simpleAddEvent.js"></script>
+
+        <!-- COMPONENTS -->
+
+<!-- script src="/animator/v/0.3.0/components/animatorComponents.js"></script -->
+
+<script>
+
+// animatorComponents.js
+/*
+    var bonesHolderSelector = "#bones-holder";
+    var selectBoneComponent = "/animator/v/0.3.0/components/select-bone.html";
+    $(bonesHolderSelector).load(selectBoneComponent, function(responseText, textStatus, jqXHR){
+        debugMode && console.log("selectBone loaded:", textStatus);
+    });
+
+
+    var positionHolderSelector = "#position-holder";
+    var positionControlsComponent = "/animator/v/0.3.0/components/position-controls.html";
+    $(positionHolderSelector).load(positionControlsComponent, function(responseText, textStatus, jqXHR){
+        debugMode && console.log("positionControls loaded:", textStatus);
+    });
+
+
+    var rotationHolderSelector = "#rotation-holder";
+    var rotationControlsComponent = "/animator/v/0.3.0/components/rotation-controls.html";
+    $(rotationHolderSelector).load(rotationControlsComponent, function(responseText, textStatus, jqXHR){
+        debugMode && console.log("rotationControls loaded:", textStatus);
+    });
+
+
+    var scaleHolderSelector = "#scale-holder";
+    var scaleControlsComponent = "/animator/v/0.3.0/components/scale-controls.html";
+    $(scaleHolderSelector).load(scaleControlsComponent, function(responseText, textStatus, jqXHR){
+        debugMode && console.log("scaleControls loaded:", textStatus);
+    });
+
+
+    var settingsHolderSelector = "#settings-holder";
+    var animationSettingsComponent = "/animator/v/0.3.0/components/animation-settings.html";
+    $(settingsHolderSelector).load(animationSettingsComponent, function(responseText, textStatus, jqXHR){
+        debugMode && console.log("animationSettings loaded:", textStatus);
+    });
+*/
+
+//  AnimatorHelpers.js
+
+    function initSlider(slider, min, max, step, value){
+        slider.min = min;
+        slider.max = max;
+        slider.step = step;
+        if (value != null) slider.value = value;
+    }
+
+    function outputUpdate(selector, value) { 
+        $(selector).val( value ); 
+    }
+
+    function newCurrentBoneSelected(){ 
+        getCurrentBone();           
+        initBonesAdjustValues();
+    }
+
+    function getCurrentBone(){
+    //  var bonesDroplist = document.getElementById("droplist-bones");
+        currentBoneIndex = bonesDroplist.selectedIndex;                      // number  //  We can put this line in update().
+        currentBone = animation.hierarchy[currentBoneIndex];                 // object  //  We can put this line in update().
+        currentDataBone = animation.data.hierarchy[currentBoneIndex];        // object  //  We can put this line in update().
+        $(boneLabelSelectedNameSelector).text( currentBone.name );
+    }
+
+    function initBonesAdjustValues(){
+    
+    //  INITIALAZE POSITION OUTPUT VALUES.
+        posOutputX.value = currentBone.position.x.toFixed(2);     // string
+        posOutputY.value = currentBone.position.y.toFixed(2);     // string
+        posOutputZ.value = currentBone.position.z.toFixed(2);     // string
+        
+    //  INITIALAZE ROTATION OUTPUT VALUES.
+        var xrad = currentBone.rotation._x;                       // number rad
+        var yrad = currentBone.rotation._y;                       // number rad
+        var zrad = currentBone.rotation._z;                       // number rad
+
+        var x = Math.floor( THREE.Math.radToDeg(xrad) );          // number degrees
+        var y = Math.floor( THREE.Math.radToDeg(yrad) );          // number degrees
+        var z = Math.floor( THREE.Math.radToDeg(zrad) );          // number degrees
+    //  Always return first rotation y because of quaternion.
+        rotOutputY.value = rotSliderY.value = y.toFixed(0);        // string degrees
+        rotOutputX.value = rotSliderX.value = x.toFixed(0);        // string degrees
+        rotOutputZ.value = rotSliderZ.value = z.toFixed(0);        // string degrees
+
+    //  INITIALAZE SCALE OUTPUT VALUES.
+        sx = currentBone.scale.x * 100;      // number
+        sy = currentBone.scale.y * 100;      // number
+        sz = currentBone.scale.z * 100;      // number
+        sclOutputX.value = sx.toFixed(2);    // string
+        sclOutputY.value = sy.toFixed(2);    // string
+        sclOutputZ.value = sz.toFixed(2);    // string
+        sclUniformOutput.value = sclOutputY.value;
+
+    }
+/*
+    function staticSliderPressed(identifier, status){ 
+    //  debugMode && console.log("staticSliderPressed:", status);
+        currentSlider = $( "#slider-" + identifier )[0];
+        currentOutput = $( "#output-" + identifier )[0];
+        currentSliderStatus = status;
+    }
+
+    function dynamicSliderPressed(identifier, status, restore){ 
+    //  debugMode && console.log("dynamicSliderPressed:", status);
+        currentSlider = $( "#slider-" + identifier )[0];
+        currentOutput = $( "#output-" + identifier )[0];
+        currentSliderStatus = status;
+        currentSlider.value = restore;
+    }
+*/
+    function staticSliderPressed(identifier, status){ 
+    //  debugMode && console.log("staticSliderPressed:", status);
+        currentSlider = $( "#slider-" + identifier )[0];
+        currentOutput = $( "#output-" + identifier )[0];
+        currentSliderStatus = status;
+    }
+
+    function outputSliderPressed(identifier, status){ 
+    //  debugMode && console.log("staticSliderPressed:", status);
+        currentSlider = $( "#output-" + identifier )[0];
+        currentOutput = $( "#slider-" + identifier )[0];
+        currentSliderStatus = status;
+    }
+
+    function dynamicSliderPressed(identifier, status, restore){ 
+    //  debugMode && console.log("dynamicSliderPressed:", status);
+        currentSlider = $( "#slider-" + identifier )[0];
+        currentOutput = $( "#output-" + identifier )[0];
+        currentSliderStatus = status;
+        if (restore == null) 
+            currentSlider.value = 0;
+        else 
+            currentSlider.value = restore;
+    }
+
+//  source: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round"
+    function round(number, precision) {
+        var shift = function (number, precision, reverseShift) {
+            if (reverseShift) {
+                precision = -precision;
+            }  
+            numArray = ("" + number).split("e");
+            return +(numArray[0] + "e" + (numArray[1] ? (+numArray[1] + precision) : precision));
+        };
+        return shift(Math.round(shift(number, precision, false)), precision, true);
+    }
+
+</script>
+
+<script>
+
+//  boneSelector.js
+
+    var boneLabelSelectedNameSelector = "#bone-label-selected-name";
+    var droplistBonesSelector = "#droplist-bones";
+    var bonesDroplist = $(droplistBonesSelector)[0];
+
+    $(droplistBonesSelector).on("change", function(e){ 
+        newCurrentBoneSelected(); 
+    });
+
+</script>
+
+<script>
+
+//  positionControls.js
+
+//  Position sliders.
+    var sliderPosXSelector = "#slider-pos-x";
+    var sliderPosYSelector = "#slider-pos-y";
+    var sliderPosZSelector = "#slider-pos-z";
+    var outputPosXSelector = "#output-pos-x";
+    var outputPosYSelector = "#output-pos-y";
+    var outputPosZSelector = "#output-pos-z";
+
+    var resetPositionSelector = "#reset-position";
+
+    var posSliderX = $(sliderPosXSelector)[0];
+    var posSliderY = $(sliderPosYSelector)[0];
+    var posSliderZ = $(sliderPosZSelector)[0];
+    var posOutputX = $(outputPosXSelector)[0];
+    var posOutputY = $(outputPosYSelector)[0];
+    var posOutputZ = $(outputPosZSelector)[0];
+    var positionOutputSelector = ".position-output";
+
+//  Initialize Position sliders.
+    var pmin, pmax, pstep;
+    pmin = -1; pmax = 1; pstep = 0.01; 
+    initSlider(posSliderX, pmin, pmax, pstep);
+    initSlider(posSliderY, pmin, pmax, pstep);
+    initSlider(posSliderZ, pmin, pmax, pstep);
+
+    $(sliderPosXSelector).on("mousedown", function(){ dynamicSliderPressed('pos-x', true,  0); });
+    $(sliderPosYSelector).on("mousedown", function(){ dynamicSliderPressed('pos-y', true,  0); });
+    $(sliderPosZSelector).on("mousedown", function(){ dynamicSliderPressed('pos-z', true,  0); });
+    $(sliderPosXSelector).on("mouseup",   function(){ dynamicSliderPressed('pos-x', false, 0); });
+    $(sliderPosYSelector).on("mouseup",   function(){ dynamicSliderPressed('pos-y', false, 0); });
+    $(sliderPosZSelector).on("mouseup",   function(){ dynamicSliderPressed('pos-z', false, 0); });
+
+    $(resetPositionSelector).on("click",  function(){ bonesResetPosition(avatar); });
+
+    $(outputPosXSelector).on("mousedown", function(){ outputSliderPressed('pos-x', true);  });
+    $(outputPosYSelector).on("mousedown", function(){ outputSliderPressed('pos-y', true);  });
+    $(outputPosZSelector).on("mousedown", function(){ outputSliderPressed('pos-z', true);  });
+    $(outputPosXSelector).on("mouseup",   function(){ outputSliderPressed('pos-x', false); });
+    $(outputPosYSelector).on("mouseup",   function(){ outputSliderPressed('pos-y', false); });
+    $(outputPosZSelector).on("mouseup",   function(){ outputSliderPressed('pos-z', false); });
+
+    $(posOutputX).on("input", function(e){
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                ( this.value == "" || isNaN(this.value) )
+            );
+            return;
+        }
+    //  Submit value to object.
+        currentDataBone.keys[currentAnimationKeyIndex].pos[0] = parseFloat(this.value);     // number toFixed(2)
+    });
+
+    $(posOutputY).on("input", function(e){
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                ( this.value == "" || isNaN(this.value) )
+            );
+            return;
+        }
+    //  Submit value to object.
+        currentDataBone.keys[currentAnimationKeyIndex].pos[1] = parseFloat(this.value);     // number toFixed(2)
+    });
+
+    $(posOutputZ).on("input", function(e){
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                ( this.value == "" || isNaN(this.value) )
+            );
+            return;
+        }
+    //  Submit value to object.
+        currentDataBone.keys[currentAnimationKeyIndex].pos[2] = parseFloat(this.value);     // number toFixed(2)
+    });
+
+    function submitPositionValue(){
+    //  Submit value to object.
+        currentDataBone.keys[currentAnimationKeyIndex].pos[0] += parseFloat(posSliderX.value);   // number  toFixed(2)
+        currentDataBone.keys[currentAnimationKeyIndex].pos[1] += parseFloat(posSliderY.value);   // number  toFixed(2)
+        currentDataBone.keys[currentAnimationKeyIndex].pos[2] += parseFloat(posSliderZ.value);   // number  toFixed(2)
+        
+    //  Play the frame.
+        timescaleSlider.value = 0;
+        animation.play( animation.currentTime );
+        
+    //  Return value to output.
+        posOutputX.value = currentBone.position.x.toFixed(1);   // string  toFixed(2)
+        posOutputY.value = currentBone.position.y.toFixed(1);   // string  toFixed(2)
+        posOutputZ.value = currentBone.position.z.toFixed(1);   // string  toFixed(2)
+    }
+
+    function reversePositionValue(){
+    //  Update output values.
+        if (animation){
+            posOutputX.value = currentBone.position.x.toFixed(1);   // string  toFixed(2)
+            posOutputY.value = currentBone.position.y.toFixed(1);   // string  toFixed(2)
+            posOutputZ.value = currentBone.position.z.toFixed(1);   // string  toFixed(2)
+        }
+    }
+
+/*
+    function initSlider(slider, min, max, step, value){
+        slider.min = min;
+        slider.max = max;
+        slider.step = step;
+        if (value != null) slider.value = value;
+    }
+*/
+</script>
+
+
+<script>
+
+//  rotationControls.js
+
+//  Rotation sliders.
+    var sliderRotXSelector = "#slider-rot-x";
+    var sliderRotYSelector = "#slider-rot-y";
+    var sliderRotZSelector = "#slider-rot-z";
+    var outputRotXSelector = "#output-rot-x";
+    var outputRotYSelector = "#output-rot-y";
+    var outputRotZSelector = "#output-rot-z";
+    var rotationOutputSelector = ".rotation-output";
+
+    var resetRotationSelector = "#reset-rotation";
+
+    var rotSliderX = $(sliderRotXSelector)[0];
+    var rotSliderY = $(sliderRotYSelector)[0];
+    var rotSliderZ = $(sliderRotZSelector)[0];
+    var rotOutputX = $(outputRotXSelector)[0];
+    var rotOutputY = $(outputRotYSelector)[0];
+    var rotOutputZ = $(outputRotZSelector)[0];
+
+//  Initialize Static Rotation sliders.
+    var rmin, rmax, rstep;
+    rmin = -180; rmax = 180; rstep = 1;
+    initSlider(rotSliderX, rmin, rmax, rstep);
+    initSlider(rotSliderY, rmin, rmax, rstep);
+    initSlider(rotSliderZ, rmin, rmax, rstep);
+
+    $(sliderRotXSelector).on("mousedown", function(){ staticSliderPressed('rot-x', true);  });
+    $(sliderRotYSelector).on("mousedown", function(){ staticSliderPressed('rot-y', true);  });
+    $(sliderRotZSelector).on("mousedown", function(){ staticSliderPressed('rot-z', true);  });
+    $(sliderRotXSelector).on("mouseup",   function(){ staticSliderPressed('rot-x', false); });
+    $(sliderRotYSelector).on("mouseup",   function(){ staticSliderPressed('rot-y', false); });
+    $(sliderRotZSelector).on("mouseup",   function(){ staticSliderPressed('rot-z', false); });
+
+    $(resetRotationSelector).on("click",  function(){ bonesResetQuaternion(avatar); });
+
+    $(outputRotXSelector).on("mousedown", function(){ outputSliderPressed('rot-x', true);  });
+    $(outputRotYSelector).on("mousedown", function(){ outputSliderPressed('rot-y', true);  });
+    $(outputRotZSelector).on("mousedown", function(){ outputSliderPressed('rot-z', true);  });
+    $(outputRotXSelector).on("mouseup",   function(){ outputSliderPressed('rot-x', false); });
+    $(outputRotYSelector).on("mouseup",   function(){ outputSliderPressed('rot-y', false); });
+    $(outputRotZSelector).on("mouseup",   function(){ outputSliderPressed('rot-z', false); });
+
+
+    $(rotationOutputSelector).on("input", function(){
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                ( this.value == "" || isNaN(this.value) )
+            );
+            return;
+        }
+
+    //  Submit value to object.
+        var x = parseFloat( THREE.Math.degToRad( Number( rotOutputX.value ) ) ); // number rad
+        var y = parseFloat( THREE.Math.degToRad( Number( rotOutputY.value ) ) ); // number rad
+        var z = parseFloat( THREE.Math.degToRad( Number( rotOutputZ.value ) ) ); // number rad
+
+        var euler = new THREE.Euler(x, y, z, "XYZ");
+        var quaternion = new THREE.Quaternion();
+        quaternion.setFromEuler( euler );
+        currentDataBone.keys[ currentAnimationKeyIndex ].rot.copy( quaternion );
+
+    //  Play the frame.
+    //  timescaleSlider.value = 0;
+    //  animation.play( animation.currentTime );
+
+    //  Update slider values.
+        var xrad = currentBone.rotation._x;                      // number rad
+        var yrad = currentBone.rotation._y;                      // number rad
+        var zrad = currentBone.rotation._z;                      // number rad
+        rotSliderX.value = THREE.Math.radToDeg(xrad).toFixed(0); // string degrees
+        rotSliderY.value = THREE.Math.radToDeg(yrad).toFixed(0); // string degrees
+        rotSliderZ.value = THREE.Math.radToDeg(zrad).toFixed(0); // string degrees
+    });
+
+    function submitRotationValue(){
+
+        var x = parseFloat( THREE.Math.degToRad( Number( rotSliderX.value ) ) ); // number rad
+        var y = parseFloat( THREE.Math.degToRad( Number( rotSliderY.value ) ) ); // number rad
+        var z = parseFloat( THREE.Math.degToRad( Number( rotSliderZ.value ) ) ); // number rad
+        
+        var euler = new THREE.Euler(x, y, z, "XYZ");
+        var quaternion = new THREE.Quaternion();
+        quaternion.setFromEuler( euler );
+        currentDataBone.keys[ currentAnimationKeyIndex ].rot.copy( quaternion );
+    
+    //  Play the frame.
+    //  timescaleSlider.value = 0;
+    //  animation.play( animation.currentTime );
+        
+    //  Update output values.
+        var xrad = currentBone.rotation._x;                      // number rad
+        var yrad = currentBone.rotation._y;                      // number rad
+        var zrad = currentBone.rotation._z;                      // number rad
+
+        var xdeg = parseInt( THREE.Math.radToDeg(xrad) );
+        var ydeg = parseInt( THREE.Math.radToDeg(yrad) );
+        var zdeg = parseInt( THREE.Math.radToDeg(zrad) );
+
+        rotOutputX.value = xdeg.toFixed(0); // string degrees
+        rotOutputY.value = ydeg.toFixed(0); // string degrees
+        rotOutputZ.value = zdeg.toFixed(0); // string degrees
+    }
+
+    function reverseRotationValue(){
+    //  Update output values.
+        if (animation){
+            var xrad = currentBone.rotation._x;                      // number rad
+            var yrad = currentBone.rotation._y;                      // number rad
+            var zrad = currentBone.rotation._z;                      // number rad
+        //  Always rotation y first because of quaternion.
+            rotOutputY.value = rotSliderY.value = THREE.Math.radToDeg(yrad).toFixed(0); // string degrees
+            rotOutputX.value = rotSliderX.value = THREE.Math.radToDeg(xrad).toFixed(0); // string degrees
+            rotOutputZ.value = rotSliderZ.value = THREE.Math.radToDeg(zrad).toFixed(0); // string degrees
+        }
+    }
+
+/*
+    function initSlider(slider, min, max, step, value){
+        slider.min = min;
+        slider.max = max;
+        slider.step = step;
+        if (value != null) slider.value = value;
+    }
+*/
+</script>
+
+
+<script>
+
+//  scaleControls.js
+
+//  Uniform Scale slider.
+    var sliderScaleUniformSelector = "#slider-scale-uniform";
+    var outputScaleUniformSelector = "#output-scale-uniform";
+    var sclUniformSlider = $(sliderScaleUniformSelector)[0];
+    var sclUniformOutput = $(outputScaleUniformSelector)[0];
+    var uniformScaleOutputSelector = ".uniform-scale-output";
+
+//  Scale sliders.
+    var sliderSclXSelector = "#slider-scl-x";
+    var sliderSclYSelector = "#slider-scl-y";
+    var sliderSclZSelector = "#slider-scl-z";
+    var outputSclXSelector = "#output-scl-x";
+    var outputSclYSelector = "#output-scl-y";
+    var outputSclZSelector = "#output-scl-z";
+    var scaleOutputSelector = ".scale-output";
+
+    var resetScaleSelector = "#reset-scale";
+
+    var sclSliderX = $(sliderSclXSelector)[0];
+    var sclSliderY = $(sliderSclYSelector)[0];
+    var sclSliderZ = $(sliderSclZSelector)[0];
+    var sclOutputX = $(outputSclXSelector)[0];
+    var sclOutputY = $(outputSclYSelector)[0];
+    var sclOutputZ = $(outputSclZSelector)[0];
+
+//    var avatarHelperSelector = "#avatar-helper";
+//    var bonesHelperSelector = "#bones-helper";
+//    var resetPoseSelector = "#reset-pose";
+
+//  Initialize Scale sliders.
+    var sclmin, sclmax, sclstep;
+    sclmin = 0.99; sclmax = 1.01; sclstep = 0.001;
+    initSlider(sclSliderX, sclmin, sclmax, sclstep);
+    initSlider(sclSliderY, sclmin, sclmax, sclstep);
+    initSlider(sclSliderZ, sclmin, sclmax, sclstep);
+    initSlider(sclUniformSlider, sclmin, sclmax, sclstep);
+
+    $(sliderSclXSelector).on("mousedown", function(){ dynamicSliderPressed("scl-x", true,  1); });
+    $(sliderSclYSelector).on("mousedown", function(){ dynamicSliderPressed("scl-y", true,  1); });
+    $(sliderSclZSelector).on("mousedown", function(){ dynamicSliderPressed("scl-z", true,  1); });
+    $(sliderSclXSelector).on("mouseup",   function(){ dynamicSliderPressed("scl-x", false, 1); });
+    $(sliderSclYSelector).on("mouseup",   function(){ dynamicSliderPressed("scl-y", false, 1); });
+    $(sliderSclZSelector).on("mouseup",   function(){ dynamicSliderPressed("scl-z", false, 1); });
+    $(sliderScaleUniformSelector).on("mousedown", function(){ dynamicSliderPressed("scale-uniform", true,  1); });
+    $(sliderScaleUniformSelector).on("mouseup",   function(){ dynamicSliderPressed("scale-uniform", false, 1); });
+
+    $(resetScaleSelector).on("click",     function(){ bonesResetScale(avatar); });
+
+    $(outputSclXSelector).on("mousedown", function(){ outputSliderPressed("scl-x", true);  });
+    $(outputSclYSelector).on("mousedown", function(){ outputSliderPressed("scl-y", true);  });
+    $(outputSclZSelector).on("mousedown", function(){ outputSliderPressed("scl-z", true);  });
+    $(outputSclXSelector).on("mouseup",   function(){ outputSliderPressed("scl-x", false); });
+    $(outputSclYSelector).on("mouseup",   function(){ outputSliderPressed("scl-y", false); });
+    $(outputSclZSelector).on("mouseup",   function(){ outputSliderPressed("scl-z", false); });
+    $(outputScaleUniformSelector).on("mousedown", function(){ outputSliderPressed("scale-uniform", true);  });
+    $(outputScaleUniformSelector).on("mouseup",   function(){ outputSliderPressed("scale-uniform", false); });
+
+    $(uniformScaleOutputSelector).on("input", function(){
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                ( this.value == "" || isNaN(this.value) )
+            );
+            return;
+        }
+    //  Submit value to object.
+        var s = parseFloat( this.value/100 ); // number
+        currentDataBone.keys[currentAnimationKeyIndex].scl[0] = s;    // number
+        currentDataBone.keys[currentAnimationKeyIndex].scl[1] = s;    // number
+        currentDataBone.keys[currentAnimationKeyIndex].scl[2] = s;    // number
+    });
+
+    $(sclOutputX).on("input", function(){
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                ( this.value == "" || isNaN(this.value) )
+            );
+            return;
+        }
+    //  Submit value to object.
+        var s = parseFloat( this.value/100 ); // number
+        currentDataBone.keys[currentAnimationKeyIndex].scl[0] = s;    // number
+    });
+
+    $(sclOutputY).on("input", function(){
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                ( this.value == "" || isNaN(this.value) )
+            );
+            return;
+        }
+    //  Submit value to object.
+        var s = parseFloat( this.value/100 ); // number
+        currentDataBone.keys[currentAnimationKeyIndex].scl[1] = s;    // number
+    });
+
+    $(sclOutputZ).on("input", function(){
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                ( this.value == "" || isNaN(this.value) )
+            );
+            return;
+        }
+    //  Submit value to object.
+        var s = parseFloat( this.value/100 ); // number
+        currentDataBone.keys[currentAnimationKeyIndex].scl[2] = s;    // number
+    });
+
+    function submitNewScaleValue(){
+    //  insertNewAnimateDataTimeFrameKey();
+    //  Submit value to object.
+        var sx = parseFloat( sclSliderX.value ); // number
+        var sy = parseFloat( sclSliderY.value ); // number
+        var sz = parseFloat( sclSliderZ.value ); // number
+
+    //  sx = Number(sx.toFixed(3));          // number
+    //  sy = Number(sy.toFixed(3));          // number
+    //  sz = Number(sz.toFixed(3));          // number
+        
+    //  currentDataBone.keys[currentAnimationKeyIndex].scl[0]
+        currentDataBone.keys[currentAnimationKeyIndex].scl[0] *= sx;    // number
+        currentDataBone.keys[currentAnimationKeyIndex].scl[1] *= sy;    // number
+        currentDataBone.keys[currentAnimationKeyIndex].scl[2] *= sz;    // number
+        
+    //  Play the frame.
+        timescaleSlider.value = 0;
+        animation.play( animation.currentTime );
+        
+    //  Update output values.
+        sx = currentBone.scale.x * 100;      // number
+        sy = currentBone.scale.y * 100;      // number
+        sz = currentBone.scale.z * 100;      // number
+        sclOutputX.value = sx.toFixed(1);    // string
+        sclOutputY.value = sy.toFixed(1);      // string
+        sclOutputZ.value = sz.toFixed(1);    // string
+        sclUniformOutput.value = sclOutputY.value;
+    }
+
+    function reverseNewScaleValue(){
+    //  Update output values.
+        if (animation){
+            sx = currentBone.scale.x * 100;             // number
+            sy = currentBone.scale.y * 100;             // number
+            sz = currentBone.scale.z * 100;             // number
+            sclOutputX.value = sx.toFixed(1);           // string
+            sclOutputY.value = sy.toFixed(1);           // string
+            sclOutputZ.value = sz.toFixed(1);           // string
+            sclUniformOutput.value = sclOutputY.value;  // string
+        }
+    }
+
+    function submitUniformScaleValue(){
+    //  insertNewAnimateDataTimeFrameKey();
+    //  Submit value to object.
+        var s = round( sclUniformSlider.value, 3 );
+
+        //s = s * currentDataBone.keys[currentAnimationKeyIndex].scl[1];
+        //s = Number(s.toFixed(3));
+        
+        currentDataBone.keys[currentAnimationKeyIndex].scl[0] *= s; // number
+        currentDataBone.keys[currentAnimationKeyIndex].scl[1] *= s; // number
+        currentDataBone.keys[currentAnimationKeyIndex].scl[2] *= s; // number
+        
+    //  Play the frame.
+        timescaleSlider.value = 0;
+        animation.play( animation.currentTime );
+        
+    //  Update output values.
+        s = currentBone.scale.y * 100;
+        sclOutputX.value = s.toFixed(1);        // string
+        sclOutputY.value = s.toFixed(1);        // string
+        sclOutputZ.value = s.toFixed(1);        // string
+        sclUniformOutput.value = s.toFixed(1);  // string
+    }
+/*
+    function initSlider(slider, min, max, step, value){
+        slider.min = min;
+        slider.max = max;
+        slider.step = step;
+        if (value != null) slider.value = value;
+    }
+*/
+</script>
+
+
+<script>
+
+//  animatorSettings.js
+
+    var sliderDurSelector = "#slider-dur";
+    var outputDurSelector = "#output-dur";
+    var sliderTimescaleSelector = "#slider-timescale";
+    var outputTimescaleSelector = "#output-timescale";
+    var sliderFpsSelector = "#slider-fps";
+    var outputFpsSelector = "#output-fps";
+    var animationNameSelector = "#animation-name";
+   
+    var durSlider = $(sliderDurSelector)[0];
+    var durOutput = $(outputDurSelector)[0];
+    var timescaleSlider = $(sliderTimescaleSelector)[0];
+    var timescaleOutput = $(outputTimescaleSelector)[0];
+    var fpsSlider = $(sliderFpsSelector)[0];
+    var fpsOutput = $(outputFpsSelector)[0];
+    var nameAnimField = $(animationNameSelector)[0];
+
+//  Initialize Animation sliders.
+    var durmin, durmax, durstep;
+    durmin = -0.1; durmax = 0.1; durstep = 0.01;
+    initSlider(durSlider, durmin, durmax, durstep);
+
+    $(sliderDurSelector).on("mousedown", function(){ 
+        dynamicSliderPressed("dur", true,  0); 
+    });
+
+    $(sliderDurSelector).on("mouseup",   function(){ 
+        dynamicSliderPressed("dur", false, 0); 
+    });
+
+    $(outputDurSelector).on("input", function(){
+
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                this.value, isNaN( this.value ) 
+            );
+            return;
+        }
+
+        var value = round(this.value, 1);  // number
+        var d = value;                     // number
+        var min = 1;                       // sec.
+        var max = 10;                      // sec.
+
+        if (d > min && d < max) {
+        
+        //  Submit value to object.
+            animtimerSlider.max = d.toFixed(1); // string
+            durOutput.style.color = "#fff";
+
+        } else if (d <= min) {
+
+            animtimerSlider.max = min;          // number
+            durOutput.style.color = "#f80";
+
+        } else if (d >= max) {
+
+            animtimerSlider.max = max;          // number
+            durOutput.style.color = "#f00";
+        }
+
+    //  Update keyframes time.
+
+    //  var v = Number(document.getElementById("slider-timer").value);
+        var l = animation.data.hierarchy[0].keys.length;
+        var v = animation.data.length; //  animation.data.hierarchy[0].keys[l - 1].time;
+        var m = round(animtimerSlider.max, 1);
+        var offset = ( m / v );
+
+    //  animation.data.hierarchy[0] last key.
+        animation.data.length = m; // VERY IMPORTANT // (sec.) 
+        animation.data.hierarchy.forEach(function(bone, index){
+            bone.keys[l - 1].time = m;
+        });
+    //  keys between [0] and [last].
+        for ( var i = (l - 2); i > 0; i-- ){
+            var key = animation.data.hierarchy[0].keys[i];
+            var t = key.time * offset;
+        //  key.time = newTime; 
+            animation.data.hierarchy.forEach(function(bone, index){
+                bone.keys[i].time = t;
+            });
+        }
+
+        ensureLooping();  
+        ensureKeysIndexing();
+        displayKeymarks();
+
+        animtimerSlider.value = 0;              // number
+        animtimerSlider.value = value;          // number
+        animtimerOutput.value = value;          // number
+
+    });
+
+    $(sliderTimescaleSelector).on("input", function(){ 
+        outputUpdate(outputTimescaleSelector, this.value);
+    });
+
+    $(outputTimescaleSelector).on("input", function(){ 
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                this.value, isNaN( this.value ) 
+            );
+            return;
+        }
+        outputUpdate(sliderTimescaleSelector, this.value);
+    });
+
+    $(sliderFpsSelector).on("input", function(){ 
+        outputUpdate(outputFpsSelector, this.value); 
+    });
+
+    $(outputFpsSelector).on("input", function(){ 
+        if ( this.value == "" || isNaN( this.value ) ) {
+            console.log("this value is NaN:", 
+                this.value, isNaN( this.value ) 
+            );
+            return;
+        }
+        outputUpdate(sliderFpsSelector, this.value); 
+    });
+
+    $(animationNameSelector).on("change", function(){ 
+        submitAnimationName(); 
+    });
+
+
+
+
+
+
+    
+    function submitNewDurationValue(){
+        var value = Number(animtimerSlider.value);
+        var min = 1;  // sec.
+        var max = 10; // sec.
+    //  var d = Number(durSlider.value);        // number
+    //  d = Number(animtimerSlider.max) + d;    // number
+
+        var d = Number(animtimerSlider.max) + Number(durSlider.value); // number
+        
+        if (d > min && d < max) {
+        
+        //  Submit value to object.
+            animtimerSlider.max = d.toFixed(1); // string
+        //  Return value to output.
+        //  d = Number(animtimerSlider.max);    // number
+            var x = Number(animtimerSlider.max);// number
+            durOutput.value = x;                // number
+            durOutput.style.color = "#fff";
+
+        } else if (d <= min) {
+
+            animtimerSlider.max = min;          // number
+            durOutput.value = min;              // number
+            durOutput.style.color = "#f80";
+            
+        } else if (d >= max) {
+
+            animtimerSlider.max = max;         // number
+            durOutput.value = max;             // number
+            durOutput.style.color = "#f00";
+        }
+
+//  Update keyframes time.
+
+    //  var v = Number(document.getElementById("slider-timer").value);
+        var l = animation.data.hierarchy[0].keys.length;
+        var v = animation.data.length; //  animation.data.hierarchy[0].keys[l - 1].time;
+        var m = Number( animtimerSlider.max );
+        var offset = (m / v );
+
+    //  animation.data.hierarchy[0] last key.
+        animation.data.length = m; // VERY IMPORTANT // (sec.) 
+        animation.data.hierarchy.forEach(function(bone, index){
+            bone.keys[l - 1].time = m;
+        });
+    //  keys between [0] and [last].
+        for ( var i = (l - 2); i > 0; i-- ){
+            var key = animation.data.hierarchy[0].keys[i];
+            var t = key.time * offset;
+        //  key.time = newTime; 
+            animation.data.hierarchy.forEach(function(bone, index){
+                bone.keys[i].time = t;
+            });
+        }
+
+        ensureLooping();  
+        ensureKeysIndexing();
+        displayKeymarks();
+
+        animtimerSlider.value = 0;              // number
+        animtimerSlider.value = value;          // number
+        animtimerOutput.value = value;          // number
+    }
+
+    function submitAnimationName(){
+        animation.data.name = $(animationNameSelector).val();
+    }
+
+/*
+    function initSlider(slider, min, max, step, value){
+        slider.min = min;
+        slider.max = max;
+        slider.step = step;
+        if (value != null) slider.value = value;
+    }
+*/
+
+    var avatarHelperSelector = "#avatar-helper";
+    var bonesHelperSelector = "#bones-helper";
+    var resetPoseSelector = "#reset-pose";
+    var removeKeysSelector = "#remove-keys";
+
+    $(avatarHelperSelector).on("click", function(){ 
+        toggleHelperVisible(avatar); 
+        if (avatar.visible) $(this).text("Hide Avatar");
+        else $(this).text("Show Avatar");
+    });
+
+    $(bonesHelperSelector).on("click", function(){ 
+        toggleHelperVisible(armatureHelper); 
+        if (armatureHelper.visible) $(this).text("Hide Bones");
+        else $(this).text("Show Bones");
+    });
+
+    $(resetPoseSelector).on("click", function(){ 
+        avatarRestPose(avatar); 
+    });
+
+    $(removeKeysSelector).on("click", function(){ 
+        removeKeymarks();
+    });
+
+</script>
+
+
+<script>
+
+//  BVH loader.js
+
+    var loadBvhBtnSelector = "#load-bvh-button";
+    var loadBvhInputSelector = "#load-bvh";
+
+    var bvhClipAnimation;
+    var bvhAnimation;
+    var bvhMesh;
+    var bvhSkeletonHelper;
+
+    $(loadBvhBtnSelector).on("click", function(){ $(loadBvhInputSelector).click(); });
+    $(loadBvhInputSelector).on("change", function(e){
+    //  bvh loader.
+        if (e.target.files.length == 0 ) return;
+
+		var file = e.target.files[0];
+		var reader = new FileReader();
+		reader.onload = function(e) { 
+    //  parse file.
+            var lines = e.target.result.split(/[\r\n]+/g);
+
+		//  import BVH file
+			var root = BVHImport.readBvh(lines);
+			console.log("root:", root);
+
+			bvhClipAnimation = BVHImport.toTHREE(root);
+			console.log("bvhClipAnimation:", bvhClipAnimation);
+
+        //  Cleanup cilp animation skeletor from ENDSITE bones. //  VERY IMPORTANT  //
+            bvhClipAnimation.skeleton.bones.forEach(function(item, index){
+                if (item.name == "ENDSITE") { bvhClipAnimation.skeleton.bones.splice(index, 1); }
+            });
+            console.log("skeleton.bones:", bvhClipAnimation.skeleton.bones);
+            var bonesNames = []; 
+            bvhClipAnimation.skeleton.bones.forEach(function(item, index){
+                bonesNames.push(item.name);
+            }); console.log("bones names:", bonesNames);
+
+		//  create a minimal empty geometry to hold the Bones
+            var geometry = new THREE.Geometry();
+
+            var material = new THREE.MeshStandardMaterial({ skinning: true, });
+            bvhMesh = new THREE.SkinnedMesh(geometry, material);
+
+		//  bind skeleton.
+            bvhMesh.add(bvhClipAnimation.skeleton.bones[0]);
+            bvhMesh.bind(bvhClipAnimation.skeleton);
+
+        //  Skeleton helper.
+			bvhSkeletonHelper = new THREE.SkeletonHelper(bvhMesh);
+			bvhSkeletonHelper.material.linewidth = 1;
+			bvhSkeletonHelper.visible = true;
+			
+			scene.add(bvhSkeletonHelper);
+			scene.add(bvhMesh);
+
+        //  Create hierarchy animation.
+        //  THREE.AnimationHandler.animations = [];
+
+            var animationData = {"name":null, "fps":null, "length":null, "hierarchy":[]};
+            animationData.name = bvhClipAnimation.clip.name;
+            animationData.fps = 25;
+            animationData.length = bvhClipAnimation.clip.duration;
+
+            var p = -1; var i = 0; hierarchykeys( root ); // IMPORTANT //
+
+            bvhAnimation = new THREE.Animation( bvhMesh, animationData );
+            console.log("animation:", bvhAnimation);
+            bvhAnimation.play(0);
+
+            function hierarchykeys( object ){
+            // callback: function(item, index){};
+            // Find any children of an object and object itself.
+                if ( object ){
+                //  Object itself.
+                    callback( object );
+                //  Object children.
+                    if ( object.children ) {
+                        object.children.forEach( function( item, index ){
+                            hierarchykeys( item ); 
+                        });
+                    }
+                }
+
+                function callback(object){
+                    if ( object.type == "ENDSITE" ) return;
+                    switch( object.name ){
+                        case "Hips":
+                            p = -1; break;
+                        case "LHipJoint":
+                        case "RHipJoint":
+                        case "LowerBack":
+                            p = 0; break;
+                        case "LeftShoulder":
+                        case "RightShoulder":
+                        case "Neck":
+                            p = 13; break;
+                        case "LeftFingerBase":
+                        case "LThumb":
+                            p = 20; break;
+                        case "RightFingerBase":
+                        case "RThumb":
+                            p = 27; break;
+                        default:
+                            p = i - 1;
+                    }
+                    console.log(i.toString(), "parent:", p, "children:", object.children.length, "bone:", object.name);
+                    animationData.hierarchy.push({keys:boneKeys(object), parent:p}); i++;
+                }
+            }
+
+        //  BVH to legacy animation. // IMPORTANT // This works correct. // DO NOT TOUCH IT. //
+            function boneKeys(object){
+                var keys = [];
+                for (var j = 0; j < object.frames.length; j++) {
+                    
+                    var key = {"pos":[], "rot":[], "scl":[1,1,1], "time":0};
+                    
+                    key.pos.push( object.frames[j].position.x + object.offset.x );
+                    key.pos.push( object.frames[j].position.y + object.offset.y  );
+                    key.pos.push( object.frames[j].position.x + object.offset.z  );
+                    
+                    key.rot.push( object.frames[j].rotation.x );
+                    key.rot.push( object.frames[j].rotation.y );
+                    key.rot.push( object.frames[j].rotation.z );
+                    key.rot.push( object.frames[j].rotation.w );
+
+                    key.time = object.frames[j].time;
+                    
+                    keys.push(key);
+                    
+                }
+                
+                return keys;
+                
+            }
+
+            function newSkeletonHelper(mesh){
+            //  Create the skeleton helper debug visualization
+        		var helper = new THREE.SkeletonHelper(mesh);
+        		helper.material.linewidth = 1;
+        		helper.name = "BVH_ARMATURE";
+        		helper.visible = true;
+        		return helper;
+            }
+        
+            function toggleHelperVisible(helper){
+                helper.visible = !helper.visible;
+            }
+
+        };
+
+		reader.readAsText(file);
+
+	});
+
+</script>
+
+    <!-- SNIPPETS -->
+
+<script>
+
+    var animatorEditorLeftPanelSelector  = "#animator-editor-left-panel";
+    var animatorEditorRightPanelSelector = "#animator-editor-right-panel";
+
+    var animationLoopSelector = "#animation-loop";
+    var manualPlaySelector    = "#manual-play";
+    var hiddenHelpersSelector = "#hidden-helpers";
+
+    var loopCheckbox  = $(animationLoopSelector)[0];     
+    var playManual    = $(manualPlaySelector)[0];
+    var hiddenHelpers = $(hiddenHelpersSelector)[0];
+
+    var boneHolderSelector     = "#bone-holder";               
+    var positionHolderSelector = "#position-holder";       
+    var rotationHolderSelector = "#rotation-holder";
+    var scaleHolderSelector    = "#scale-holder";
+    var optionsHolderSelector  = "#options-holder";
+
+//  DEV-NOTE: $(function(){}); // sortcut of $(document).on("ready", function(){});
+</script>
+
+<script>
+
+// AnimatorEditor.js
+
+//  Current slider and bone.
+    currentSliderStatus = false;            // boolean
+    currentSpeed = 1;                       // number slider value
+    currentSlider = undefined;              // slider element
+    currentOutput = undefined;              // output element
+    currentBoneIndex = undefined;           // number for animation.hierarchy[currentBoneIndex]
+    currentBone = undefined;                // object animation.hierarchy[currentBoneIndex]
+    currentDataBone = undefined;            // object animation.data.hierarchy[currentBoneIndex]
+    currentAnimationKeyIndex = undefined;   // number for animation.data.hierarchy[currentBoneIndex].keys[currentAnimationKeyIndex]
+    currentAnimationKeyObject = undefined;  // object animation.data.hierarchy[currentBoneIndex].keys[currentAnimationKeyIndex]
+    currentFrameTime = undefined;           // number Number( document.getElementById("slider-timer").value )
+    animationDataKeyExist = false;          // boolean
+    bcaAnimationDataIndexKeys = [undefined, undefined, undefined];
+
+//  Define an empty script for random pose generator button.
+    function currentCrazyPosesScript(){};   // script for random pose generator.
+//  How it is works: When we change avatar from Animator-Avatars menu, we parse also the assocciated random poses function in currentCrazyPosesScript function.
+//  When we click the Random Pose button we call the currentCrazyPosesScript() function that is the assocciated random poses function for the selected avatar.
+//  Do not forget that it is important to parse the assocciated random pose avatar function in menu Animator-Avatars-[the selected avatar] menu item.
+
+
+//  keyframes.js
+
+    var currentkeymark;
+    var currentkeytime;
+    var currentkeyindex;
+    var keymarksArray = [];
+
+
+    function insertNewAnimateDataTimeFrameKey(){
+        
+    //  Pause the animation.
+        $(timescaleSlider).val(0);  
+        
+    //  Check first if animation key exists. If not, create it. Then set currentAnimationKeyIndex again.
+        bcaFrameKeyIndexesArray( $(animtimerSlider).val() );
+        var b = bcaAnimationDataIndexKeys[0];
+        var c = bcaAnimationDataIndexKeys[1];
+        var a = bcaAnimationDataIndexKeys[2];
+        
+    //  Calculate the index position to insert the new animation data key.
+        if (!animationDataKeyExist){
+            var idx, spl;
+            if ( b &&  a ) { idx = b; spl = a; }          // splice to next key index.
+            else if (!b &&  a) { idx = 0; spl = a; }      // splice to next key index.
+            else if ( b && !a) { idx = b; spl = b + 1; }  // push to end of keys array.
+            else if (!b && !a) { idx = 0; spl = 0; }      // keys array is empty. unshift to beginning of keys array.
+
+    //  =================================================================================  //
+    //  IMPORTANT: animation.data.hierarchy[].keys[].rot WORKS ONLY WITH THREE.Quaternion  //
+    //  =================================================================================  //
+
+            for (var i in animation.data.hierarchy){
+            
+            //  Create a new animation data key with current time bones values at animation.data.hierarchy[i].keys[idx].
+                var newKey = {
+                    "index":spl, "pos":[], "rot":new THREE.Quaternion(), 
+                    "scl":[], "time":Number( $(animtimerSlider).val() )
+                };
+                
+            //  Get bones values at current time from animation.hierarchy.
+                newKey.pos = animation.hierarchy[i].position.toArray();
+                newKey.rot.copy(animation.hierarchy[i].quaternion);
+                newKey.scl = animation.hierarchy[i].scale.toArray();
+                
+            //  Add new key in animation data hierarchy keys array.
+                if (spl < animation.data.hierarchy[i].keys.length) {
+                    animation.data.hierarchy[i].keys.splice(spl, 0, newKey);      // add new key before the after key.
+                } else {
+                    animation.data.hierarchy[i].keys.push(newKey);                // add new key at end of keys array.
+                }
+
+    //  =======================================================================  //
+    //  IMPORTANT: Every animation data key object must have "index": property.  //
+    //  =======================================================================  //
+        
+            //  Ensure keys indexing.
+                for (var j in animation.data.hierarchy[i].keys){
+                    animation.data.hierarchy[i].keys[j].index = Number(j);
+                }
+            }
+
+            var text = Number( $(animtimerSlider).val() ).toFixed(2).replace(/\./, ":");
+            console.log("New animation data key added at", text, "sec.", animation.data.hierarchy[0]);
+            
+            ensureKeysIndexing();
+        }
+        
+    //  Update bca indexes to get the new currentAnimationKeyIndex.
+        bcaFrameKeyIndexesArray( $(animtimerSlider).val() );
+        
+    //  Get currentAnimationKeyIndex and then define currentAnimationKeyObject.
+    //  currentDataBone = animation.data.hierarchy[currentBoneIndex];
+        newCurrentBoneSelected();
+        
+        
+    //  Sort animation data keys by time.
+        for (var i in animation.data.hierarchy){
+            animation.data.hierarchy[i].keys.sort(function(a,b){return parseFloat(a.time) - parseFloat(b.time);})
+        }
+        
+    //  Delete existed keyframes handlers.
+        $(".keymark").remove();  //  $(keysContainerSelector).html("");
+        
+    //  Create new indexed keyframes handlers.
+        for (var i in animation.data.hierarchy[0].keys){
+            newTimeKeyMarker(i);
+        }
+        
+    }
+
+
+//  Keyframe Handler.
+
+    function newTimeKeyMarker(k){
+    //  var v = Number(document.getElementById("slider-timer").value);
+        var v = animation.data.hierarchy[0].keys[k].time;
+        var m = Number( animtimerSlider.max );
+/*
+        var keymark = document.createElement("DIV");
+    //  keymark.style.border = "1px solid #ff0";
+        keymark.class = "keymark";
+        keymark.style.position = "absolute";
+        keymark.style.backgroundColor = "#ff0";
+        keymark.style.cursor = "pointer";
+        keymark.style.color = "#000";
+        keymark.style.fontSize = "14px";
+        keymark.style.fontWeight = "bold";
+    //  keymark.style.minWidth = "1px";
+        keymark.style.width = "auto";
+        keymark.style.height = "16px";
+        keymark.style.top = "10px";
+*/
+
+        var keymark = $( [ '<div class="keymark"',
+            'style="position:absolute; top:10px; width:auto; height:auto; background-color:#ff0; border:2px solid #ff0;',
+            'border-radius:3px; cursor:pointer; color:#000; font-size14px; font-weight:bold; z-index:1001 !important;">',
+            '</div>'
+        ].join(" ") );
+        
+        debugMode && console.log("keymark:", keymark);
+
+        keymark.text( animation.data.hierarchy[0].keys[k].index.toString() );
+        var offset = ( 100 * v / m );  var half = ( keymark[0].offsetWidth / 2 );
+        keymark[0].style.left = offset.toFixed(2) + "%";
+        debugMode && console.log("keymark style left:", keymark[0].style.left, "half:", half);
+
+        keymark.on("mousedown", onkeymarkMouseDown);
+        keymark.on("mouseenter", function(){ this.style.backgroundColor = this.style.borderColor = "#0f0"; });
+        keymark.on("mouseleave", function(){ this.style.backgroundColor = this.style.borderColor = "#ff0"; });
+        
+    //  Drag & Drop.
+        keyDragDrop.initElement(keymark[0]);
+    //  Add to document.
+        $(keyscontainer).append(keymark);
+/*        
+    //  Keymark info.
+        var keyinfo = document.createElement("DIV");
+        keyinfo.style.position = "absolute";
+    //  keyinfo.style.border = "1px solid #fff";
+        keyinfo.style.color = "#fff";
+        keyinfo.style.fontSize = "12px";
+        keyinfo.style.fontWeight = "bold";
+        keyinfo.style.top = "-25px";
+        keyinfo.style.display = "block";
+        keyinfo.style.left = "-100%";                
+*/
+        var keyinfo = $( [ '<div',
+            'style="position:absolute; top:-25px; left:-100%; color:#fff; font-size12px; font-weight:bold; display:block">',
+            '</div>'
+        ].join(" ") );
+
+        var time = animation.data.hierarchy[0].keys[k].time;
+        var text = time.toFixed(2).replace(/\./, ":");
+        keyinfo.text( text );
+        keymark.append(keyinfo);
+        
+        console.log("New animation key marker created at", keyinfo.text(), "sec.");
+        return [keymark[0], keyinfo[0]];
+    }
+
+    function onkeymarkMouseDown(){ 
+        this.style.backgroundColor = "#f00";
+        currentkeymark = this;
+        currentkeytime = this.children[1];
+    //  Find corresponding Frame key before you add listeners.
+        for (var i=0; i < keyscontainer.children.length; i++){
+            if (this == keyscontainer.children[i]){
+                currentkeyindex = i;
+                break;
+            }
+        }
+        console.log("currentkeyindex:", currentkeyindex);
+        
+        //document.addEventListener("mousemove", onkeymarkMouseMove, false);
+        $(this).on("mousemove", function(){ onkeymarkMouseMove(); });
+        //document.addEventListener("mouseup", onkeymarkMouseUp, false);
+        $(document).on("mouseup", onkeymarkMouseUp);
+    //  var t = (currentkeymark.offsetLeft / keyscontainer.offsetWidth) * ( slidertimer.max );
+        var a = parseFloat(currentkeymark.offsetLeft / keyscontainer.offsetWidth);
+        var b = parseFloat( slidertimer.max );
+        var t = round( a * b, 2);
+    //  if (t > Number(slidertimer.max)) t = Number(slidertimer.max);
+        var max = round( parseFloat(slidertimer.max), 2 );
+        if ( t > max ) t = max;
+    //  t = Number(t.toFixed(2));
+    //  currentkeytime.innerHTML = t;
+        var text = t.toFixed(2).replace(/\./, ":");
+        currentkeytime.innerHTML = text;
+    }
+
+    function onkeymarkMouseMove(){
+    //  var t = parseFloat(currentkeytime.parentElement.offsetLeft / keyscontainer.offsetWidth) * parseFloat( slidertimer.max );
+        var a = parseFloat(currentkeytime.parentElement.offsetLeft / keyscontainer.offsetWidth);
+        var b = parseFloat( slidertimer.max );
+        var t = round( a * b, 2);
+    //  if ( t > parseFloat(slidertimer.max) )  t = parseFloat(slidertimer.max);
+        var max = round( parseFloat(slidertimer.max), 2 );
+        if ( t > max ) t = max;
+    //  t = Number(t.toFixed(2));
+    //  currentkeytime.innerHTML = t.toFixed(2).replace(/\./, ":");
+        var text = t.toFixed(2).replace(/\./, ":");
+        currentkeytime.innerHTML = text;
+    }
+    
+    function onkeymarkMouseUp(){
+    //  Update animation.data.hierarchy[i].keys[currentkeyindex].time.
+        var t = parseFloat( currentkeytime.innerHTML.replace(/\:/, ".") );
+        console.log("currentkeytime:", t);
+        for (var i in animation.data.hierarchy){
+            animation.data.hierarchy[i].keys[currentkeyindex].time = t;
+        //  Sort animation keys by time.
+            animation.data.hierarchy[i].keys.sort( function(a,b){
+                return parseFloat(a.time) - parseFloat(b.time);
+            })
+        }
+    //  Ensure keys index.
+        ensureKeysIndexing();
+    //  Remove event listeners.
+        var keymarks = keyscontainer.children;
+        debugMode && console.log("keymarks:", keymarks);
+        for (var i in keymarks){
+            console.log("keymarks[" + i + "]:", keymarks[i]);
+            var keymark = keymarks[i];
+            debugMode && console.log("keymark:", keymark);
+            if (keymark == keymarks.length) {
+                console.log("keymark == keymarks.length:", keymark == keymarks.length);
+                break;
+            }
+            $(keymark).off("mousedown");
+            $(keymark).off("mousemove");
+            $(document).off("mouseup", onkeymarkMouseUp);
+        }
+        debugMode && console.log("==end of loop==");
+        
+    //  Delete existed keyframes handlers.
+        $(keyscontainer).html(""); // BE CAREFULL: DO NOT USE HERE $(".keymark").remove();
+
+        
+    //  Create new indexed keyframes handlers.
+        for (var i in animation.data.hierarchy[0].keys){
+            newTimeKeyMarker(i);
+        }
+
+    //  Initialize current key variables.
+        currentkeymark = null;
+        currentkeytime = null;
+        currentkeyindex = null;
+
+    //  Move aninator timer to current key.
+        animation.play( t ); 
+    }
+    
+
+    function displayKeymarks(){
+    //  Sort animation data keys by time.
+        for (var i in animation.data.hierarchy){
+            animation.data.hierarchy[i].keys.sort(function(a,b){return parseFloat(a.time) - parseFloat(b.time);})
+        }
+
+    //  Delete existed keyframes handlers.
+        $(".keymark").remove(); //  $(keysContainerSelector).html("");
+
+    //  Create new indexed keyframes handlers.
+        for (var i in animation.data.hierarchy[0].keys){
+            newTimeKeyMarker(i);
+        }
+    }
+
+    function removeKeymarks(){
+    //  Delete existed keyframes handlers.
+        $(".keymark").remove(); //  $(keysContainerSelector).html("");
+    }
+
+</script>
+
+
+<script>
+
+    var animationsHandler = THREE.AnimationHandler.animations;   //  array
+
+
+//  Before, Current, After (bca) Frame Key Indexes Array.
+    function bcaFrameKeyIndexesArray(t){
+    //  Check if frame (t) already exist in animationData.
+        var keyExists = false;
+        var keyBefore, keyIndex, keyAfter;
+        var keysArray = (animation) ? animation.data.hierarchy[0].keys : [];
+    //  var t = Number(animtimerSlider.value);
+        if (keysArray.length > 0){
+            for (var j in keysArray){
+                if (keysArray[j].time < Number(t)){
+                
+                    keyBefore = Number(j);
+                    
+                } else if (keysArray[j].time == Number(t)){
+                
+                    keyIndex = Number(j);
+                    keyExists = true;
+                    
+                } else if (keysArray[j].time > Number(t)){
+                
+                    keyAfter = Number(j);
+                    break;
+                    
+                } else {
+                
+                    debugMode && console.error( 
+                        "Unhandled Case ERROR:", 
+                        "bcaFrameKeyIndexesArray():",
+                        "This error should not be appeared:",
+                        "if (keysArray.length > 0)..."
+                    );
+
+                }
+            }
+        }
+        
+    //  Update.
+        animationDataKeyExist = keyExists;
+        bcaAnimationDataIndexKeys = [keyBefore, keyIndex, keyAfter];
+        currentAnimationKeyIndex = keyIndex;
+
+    //  debugMode && console.log("bca keys:", bcaAnimationDataIndexKeys);
+        return bcaAnimationDataIndexKeys;
+    }
+
+
+
+//  animation-play.js
+
+//  When you press a save button you can sent this animationData object to server database.
+//  Play Button handles the timeSpeed of animation.
+//  Animation is always in play mode. Never stopping.
+    
+    function playAnimation(theAvatar){
+    
+        if (playButton.innerHTML == "Play"){
+            ensureLooping();
+            ensureKeysIndexing();
+            timescaleSlider.value = currentSpeed;
+            timescaleOutput.value = currentSpeed;
+            animation.play(animation.currentTime);
+            animtimerSlider.value = animation.currentTime;
+            playButton.innerHTML = "Pause";
+            $(statusMsgrSelector).text("Playing...");
+            $(statusMsgrSelector)[0].style.display = "block";
+            console.log("Animation is playing.");
+        }
+        
+        else if (playButton.innerHTML == "Pause"){
+            timescaleSlider.value = 0;
+            timescaleOutput.value = currentSpeed;
+            animtimerSlider.value = animation.currentTime;
+            playButton.innerHTML = "Play";
+            console.log("animation.data:", animation.data);
+            $(statusMsgrSelector).text("Paused");
+            $(statusMsgrSelector)[0].style.display = "block";
+            console.log("Animation paused.");
+        }
+    }
+
+        
+    function ensureLooping(){
+        var lastkeyExists = false;
+        var z = animation.data.hierarchy[0].keys.length - 1;
+        var t = animation.data.length;
+
+        if (animation.data.hierarchy[0].keys[z].time == t) {
+            lastkeyExists = true;
+        }
+
+        for (var i in animation.data.hierarchy){
+            var posloop = animation.data.hierarchy[i].keys[0].pos;
+            var rotloop = animation.data.hierarchy[i].keys[0].rot;
+            var sclloop = animation.data.hierarchy[i].keys[0].scl;
+            var loopKeyData = {"index":z, "pos":posloop, "rot":rotloop, "scl":sclloop, "time":t};
+        //  console.log("loopKeyData:", loopKeyData);
+
+            if (lastkeyExists) {
+            
+                var removedItems = 1;
+                animation.data.hierarchy[i].keys.splice(z, removedItems, loopKeyData);
+                
+            } else {
+
+               var removedItems = 0;
+               loopKeyData.index = animation.data.hierarchy[0].keys.length;   // index correction.
+               animation.data.hierarchy[i].keys.push(loopKeyData);
+            }
+
+        }
+        console.log("Ensure Looping completed.");
+    }
+
+    function ensureKeysIndexing(){
+        for (var i in animation.data.hierarchy){
+            for (var j in animation.data.hierarchy[i].keys){
+                animation.data.hierarchy[i].keys[j].index = Number(j);
+            }
+        }
+        console.log("Ensure Keys Indexing completed.");
+    }
+
+</script>
+
+
+
+    <!-- SKINNED MESH LOADER -->
+
+<script>
+
+//  animator skinned loader.js
+
+    function loadSkinnedAnimatedMesh(url, scale){
+    //  Remove old avatar from scene.
+        if (avatar) scene.remove(avatar);
+    //  Remove old armature helper.
+        if (!!armatureHelper) scene.remove(armatureHelper);
+        
+    //  Load Skinned Armatured Mesh.
+        var loader = new THREE.JSONLoader();
+        loader.load( url, function(geometry, materials){
+            geometry.computeVertexNormals();
+	        geometry.computeBoundingBox();
+        //
+	        for ( var i = 0, il = materials.length; i < il; i ++ ) {
+                var originalMaterial = materials[ i ];
+                originalMaterial.skinning = true;
+            }
+        //
+            var material = new THREE.MeshFaceMaterial(materials);
+            avatar = new THREE.SkinnedMesh(geometry, material, false);
+            avatar.name = "AVATAR";
+            avatar.position.set( 0, 0, 0 );
+            avatar.scale.set( scale, scale, scale );
+            avatar.rotation.set( 0, 0, 0 );
+            avatar.userData.animationData = {};
+        //
+
+//  VERY IMPORTANT: This is for not disappear avatar when camera come to close //
+            avatar.frustumCulled = false; //  VERY IMPORTANT  //
+//  VERY IMPORTANT: This is for not disappear avatar when camera come to close //
+
+        //
+            scene.add(avatar);
+            skins.push(avatar);
+            console.log("Avatar loaded:", avatar);
+        //
+            armatureHelper = newSkeletonHelper(avatar);
+            scene.add(armatureHelper);
+            armatureHelper.visible = false;
+            console.log("Armature Helper created:", armatureHelper);
+        
+        //  Initialize Bones Drop list.
+            initBonesDroplist(avatar);
+            console.log("Bones droplist initialized.");
+            
+        //  Define the animationData object to create the init animation.
+            var animationData = {"name":null, "fps":null, "length":null, "hierarchy":[]};
+            animationData.name = nameAnimField.value;
+            animationData.fps = Number(fpsSlider.value);
+            animationData.length = Number(animtimerSlider.max);
+            
+        //  Prepear animationData for first init animation keys.
+
+        //  Create the init key (time:0) for every bone of avatar in animationData.hierarchy.
+            for (var i in avatar.skeleton.bones) {
+                animationData.hierarchy.push({"keys":[]});
+                var initAnimationKey = {"pos":[0,0,0], "rot":[0,0,0,1], "scl":[1,1,1], "time":0};
+                initAnimationKey.pos = avatar.skeleton.bones[i].position.toArray();
+                initAnimationKey.rot = avatar.skeleton.bones[i].quaternion.toArray();
+                initAnimationKey.scl = avatar.skeleton.bones[i].scale.toArray();
+                animationData.hierarchy[i].keys.push(initAnimationKey);
+            }
+            console.log( "Animation Data created:", animationData );
+            
+        //  Create the animation.
+            THREE.AnimationHandler.animations = [];
+            animation = new THREE.Animation( avatar, animationData );
+            animation.isPlaying = false;
+            animation.currentTime = 0;
+            timescaleSlider.value = 0;
+            playButton.innerHTML = "Play";
+            console.log("Animation created:", animation);
+        //
+            ensureLooping();
+        
+        //  Create a userData array to store rest pose.
+            avatar.userData.restPose = [];
+            
+        //  Store init key as rest pose in userData.
+            for (var i in animation.hierarchy) {
+                var restPoseKey = {"pos":[0,0,0], "rot":[0,0,0,1], "scl":[1,1,1]};
+                restPoseKey.pos = animation.hierarchy[i].position.toArray();
+                avatar.userData.restPose.push( restPoseKey );
+            }
+
+            console.log( "Rest pose saved:", avatar.userData.restPose );
+            
+        //  Now that we have create the animation
+        //  we can get the currentBone and initialize
+        //  the bones values in bone adjust sliders.
+        
+            getCurrentBone(); 
+
+            initBonesAdjustValues();
+
+        //  Activate animation.
+            animation.play(0);   // IMPORTANT //
+
+            console.log("Avatar loading completed and ready to animate.");
+
+            removeKeymarks();    // IMPORTANT //
+
+        //  Init avatar helper text.
+            if (avatar.visible) 
+                $(avatarHelperSelector).text("Hide Avatar");
+            else 
+                $(avatarHelperSelector).text("Show Avatar");
+        
+        //  Init armatureHelper helper text.
+            if (armatureHelper.visible) 
+                $(bonesHelperSelector).text("Hide Bones");
+            else 
+                $(bonesHelperSelector).text("Show Bones");
+
+        });
+    }
+
+//  LOAD JSON SKINNED MESH.
+    
+    function loadJsonSkinnedAnimatedMesh(event){
+    //  Remove old skinnedmesh from scene.
+        if (!!avatar) scene.remove(avatar);
+    //  Remove old armature helper.
+        if (!!armatureHelper) scene.remove(armatureHelper);
+
+    //  JSON TEXT CONTENTS READER.
+        var reader = new FileReader();
+        
+    //  FileList object.
+        var file = event.target.files[0];
+        console.log("file:", file);
+        var filename = file.name;
+        console.log("filename:", filename);
+		var extension = filename.split( '.' ).pop().toLowerCase();
+		console.log("extension:", extension);
+		var name = filename.split( '.' )[0];
+		console.log("name:", name);
+		
+//      1. First we read json file as text.
+
+    //  Read json file as a text string.
+        reader.readAsText(file);
+        
+    //  When reading competed...
+        reader.onloadend = function(event){
+            //console.log(event.target.result);
+            contents = event.target.result;
+        //  Skinned Json data for skinned collection input.
+            skinnedJsonData = event.target.result;
+            //console.log("contents:", contents);
+            console.log("json contents readed as text string.");
+//      2. Then we parse json string as json data with JSON parser.
+        //  Parse json contents string as json data.
+            var data = JSON.parse( contents );
+            console.log("json contents parsed as data:", data);
+        //  Get Json contents metadata.
+            var metadata = data.metadata;
+            console.log("json metadata:", metadata);
+//      3. Last we parse again json data with a new JSONLoader to get the geometry.
+            var loader = new THREE.JSONLoader();
+            var result = loader.parse( data );
+            console.log("json data parsed with THREE.JSONLoader as JSON object {geometry, materials}.");
+            console.log("result:", result);
+            var geometry = result.geometry;
+            console.log("geometry:", geometry);
+            
+//      4. We create the materials from json results.
+            geometry.computeVertexNormals();
+	        geometry.computeBoundingBox();
+	    //
+            var material;
+			if ( result.materials !== undefined ) {
+
+                for ( var i = 0; i < result.materials.length; i++ ) {
+                    var originalMaterial = result.materials[ i ];
+                    originalMaterial.skinning = true;
+                }
+
+                if ( result.materials.length > 1 )
+					material = new THREE.MeshFaceMaterial( result.materials );
+				else 
+					material = result.materials[ 0 ];
+
+			} else {
+
+				material = new THREE.MeshPhongMaterial();
+
+			}
+
+			console.log("material:", material);
+        //
+            geometry.sourceType = "ascii";
+		    geometry.sourceFile = file.name;
+		    
+//      5. We create the json skinned mesh object.
+			if ( geometry.bones && geometry.bones.length > 0 ) {
+
+				// var material = new THREE.MeshFaceMaterial(result.materials);
+                avatar = new THREE.SkinnedMesh(geometry, material, false);
+                avatar.name = "AVATAR";
+                avatar.position.set( 0, 0, 0 );
+                avatar.scale.set( 1, 1, 1 );
+                avatar.rotation.set( 0, 0, 0 );
+                avatar.userData.animationData = {};
+                // scene.add(avatar);
+                skins.push(avatar);
+                console.log("Avatar loaded:", avatar);
+                
+			} else {
+			
+                var msg = "Sorry. This is not a skinned mesh. Try to upload with Easy Meshes Upload Form.";
+                console.log(msg);
+                alert(msg);
+                return;
+			}
+        
+//  VERY IMPORTANT: This is for not disappear avatar when camera come to close //
+            avatar.frustumCulled = false; //  VERY IMPORTANT  //
+//  VERY IMPORTANT: This is for not disappear avatar when camera come to close //
+
+//      6. We add new mesh in SKIN scene.
+			scene.add(avatar);
+			console.log("avatar added in Animator scene:", scene.children);
+        //  Loading completed.
+            console.log("Loading skinned json file", filename, "completed.");
+        //  Focus Editor controls.
+            controls.focus(avatar, true);
+            
+//      7. We add all the rest things in scene.
+            armatureHelper = newSkeletonHelper(avatar);
+            scene.add(armatureHelper);
+            armatureHelper.visible = false;
+            console.log("Armature Helper created:", armatureHelper);
+        
+        //  Initialize Bones Drop list.
+            initBonesDroplist(avatar);
+            console.log("Bones droplist initialized.");
+            
+        //  Define the animationData object to create the init animation.
+            var animationData = {"name":null, "fps":null, "length":null, "hierarchy":[]};
+            animationData.name = nameAnimField.value;
+            animationData.fps = Number(fpsSlider.value);
+            animationData.length = Number(animtimerSlider.max);
+            
+        //  Prepear animationData for first init animation keys.
+
+        //  Create the init key (time:0) for every bone of avatar in animationData.hierarchy.
+            for (var i in avatar.skeleton.bones) {
+                animationData.hierarchy.push({"keys":[]});
+                var initAnimationKey = {"pos":[0,0,0], "rot":[0,0,0,1], "scl":[1,1,1], "time":0};
+                initAnimationKey.pos = avatar.skeleton.bones[i].position.toArray();
+                initAnimationKey.rot = avatar.skeleton.bones[i].quaternion.toArray();
+                initAnimationKey.scl = avatar.skeleton.bones[i].scale.toArray();
+                animationData.hierarchy[i].keys.push(initAnimationKey);
+            }
+
+            console.log( "Animation Data created:", animationData );
+            
+        //  Create the animation.
+            THREE.AnimationHandler.animations = [];
+            animation = new THREE.Animation( avatar, animationData );
+            animation.isPlaying = false;
+            animation.currentTime = 0;
+            timescaleSlider.value = 0;
+            playButton.innerHTML = "Play";
+            console.log("Animation created:", animation);
+        //
+            ensureLooping();
+
+        //  Create a userData array to store rest pose.
+            avatar.userData.restPose = [];
+
+        //  Store init key as rest pose in userData.
+            for (var i in animation.hierarchy) {
+                var restPoseKey = {"pos":[0,0,0], "rot":[0,0,0,1], "scl":[1,1,1]};
+                restPoseKey.pos = animation.hierarchy[i].position.toArray();
+                restPoseKey.rot = animation.hierarchy[i].quaternion.toArray();
+                restPoseKey.scl = animation.hierarchy[i].scale.toArray();
+                avatar.userData.restPose.push( restPoseKey );
+            }
+
+            console.log( "Rest pose saved:", avatar.userData.restPose );
+            
+        /*  Now that we have create the animation
+            we can get the currentBone and initialize
+            the bones values in bone adjust sliders.
+        */
+            getCurrentBone(); 
+
+            initBonesAdjustValues();
+
+            console.log("Avatar loading completed and ready to animate.");
+
+            removeKeymarks();  //  IMPORTANT //
+		};
+    }
+    
+    
+    function initBonesDroplist(theAvatar){
+    //  Remove all options from droplist.
+        bonesDroplist.innerHTML = null;
+    //  Create new options list from avatar bones.
+        for (var i in theAvatar.skeleton.bones){
+            var newOption = document.createElement("option");
+            newOption.value = theAvatar.skeleton.bones[i].name;
+            newOption.text = theAvatar.skeleton.bones[i].name;
+            bonesDroplist.options.add(newOption);
+        }
+    }
+    
+    function newSkeletonHelper(theMesh){
+    //  Create the skeleton helper debug visualization
+		var helper = new THREE.SkeletonHelper(theMesh);
+		helper.material.linewidth = 5;
+		helper.name = "ARMATURE_HELPER";
+		helper.visible = true;
+		return helper;
+    }
+
+    function toggleHelperVisible(theHelper){
+        theHelper.visible = !theHelper.visible;
+    }
+    
+</script>
+
+
+<script>
+
+//  animatorResets.js
+
+    function deepCopy(obj) {
+        if (Object.prototype.toString.call(obj) === "[object Array]") {
+            var out = [], i = 0, len = obj.length;
+            for ( ; i < len; i++ ) {
+                out[i] = arguments.callee(obj[i]);
+            }
+            return out;
+        }
+        if (typeof obj === "object") {
+            var out = {}, i;
+            for ( i in obj ) {
+                out[i] = arguments.callee(obj[i]);
+            }
+            return out;
+        }
+        return obj;
+    }
+
+        
+    function avatarRestPose(theAvatar){
+    //  Check if current animation data key exist.
+        bcaFrameKeyIndexesArray( animtimerSlider.value );
+    
+        if (animationDataKeyExist) {
+        //  Copy pose from user data.
+            for (var i in theAvatar.userData.restPose){
+                animation.data.hierarchy[i].keys[currentAnimationKeyIndex].pos = deepCopy( theAvatar.userData.restPose[i].pos );
+                animation.data.hierarchy[i].keys[currentAnimationKeyIndex].rot.fromArray( theAvatar.userData.restPose[i].rot );
+                animation.data.hierarchy[i].keys[currentAnimationKeyIndex].scl = deepCopy( theAvatar.userData.restPose[i].scl );
+            }
+            
+        //  Play the frame.
+            timescaleSlider.value = 0;
+            animation.play( animation.currentTime );
+
+            theAvatar.visible = true;
+            armatureHelper.visible = false;
+            console.log("Animation data key reseted to rest pose.");
+            
+        } else {
+        
+            console.log("Current animation data key does not exists.", "You can not reset to rest pose.");
+        }
+
+    //  Get currentAnimationKeyIndex and then define currentAnimationKeyObject.
+        newCurrentBoneSelected();
+    }
+    
+
+    function bonesResetPosition(theAvatar){
+    //  Check if current animation data key exist.
+        bcaFrameKeyIndexesArray( animtimerSlider.value );
+        
+        if (animationDataKeyExist) {
+        //  Reset bones position values from user data.
+            for (var i in theAvatar.userData.restPose){
+                animation.data.hierarchy[i].keys[currentAnimationKeyIndex].pos = deepCopy( theAvatar.userData.restPose[i].pos );
+            }
+
+        //  Play the frame.
+            timescaleSlider.value = 0;
+            animation.play( animation.currentTime )
+
+            theAvatar.visible = true;
+            armatureHelper.visible = false;
+            console.log("Animation data key positions reseted.");
+        
+        } else {
+        
+            console.log("Current animation data key does not exists.", "You can not reset bones position.");
+        }
+
+    //  Get currentAnimationKeyIndex and then define currentAnimationKeyObject.
+        newCurrentBoneSelected();
+    }
+    
+    function bonesResetQuaternion(theAvatar){
+    //  Check if current animation data key exist.
+        bcaFrameKeyIndexesArray( animtimerSlider.value );
+        
+        if (animationDataKeyExist) {
+        //  Reset bones position values from user data.
+            for (var i in theAvatar.userData.restPose){
+                animation.data.hierarchy[i].keys[currentAnimationKeyIndex].rot.fromArray( theAvatar.userData.restPose[i].rot );
+            }
+        //  Play the frame.
+            timescaleSlider.value = 0;
+            animation.play( animation.currentTime );
+        //
+            theAvatar.visible = true;
+            armatureHelper.visible = false;
+            console.log("Animation data key rotations reseted.");
+        }
+        else if (!animationDataKeyExist){
+            console.log("Current animation data key does not exists.", "You can not reset bones rotation.");
+        }
+
+    //  Get currentAnimationKeyIndex and then define currentAnimationKeyObject.
+        newCurrentBoneSelected();
+    }
+
+    function bonesResetScale(theAvatar){
+    //  Check if current animation data key exist.
+        bcaFrameKeyIndexesArray( animtimerSlider.value );
+        
+        if (animationDataKeyExist) {
+        //  Reset bones position values from user data.
+            for (var i in theAvatar.userData.restPose){
+                animation.data.hierarchy[i].keys[currentAnimationKeyIndex].scl = deepCopy( theAvatar.userData.restPose[i].scl );
+            }
+
+        //  Play the frame.
+            timescaleSlider.value = 0;
+            animation.play( animation.currentTime );
+
+            theAvatar.visible = true;
+            armatureHelper.visible = false;
+            console.log("Animation data key scales reseted.");
+            
+        } else {
+        
+            console.log("Current animation data key does not exists.", "You can not reset bones scale.");
+        }
+
+    //  Get currentAnimationKeyIndex and then define currentAnimationKeyObject.
+        newCurrentBoneSelected();
+    }
+
+    //  TODO: TO FIX deletePoseHierarchyKey() function.
+
+    function deleteCurrentAnimationDataKey(){
+
+        if ( !animationDataKeyExist ){
+            console.error("Current animation data key does not exists.", "Delete of animation pose key canceled."); return;
+        }
+
+        if (animation.data.hierarchy[0].keys.length < 3) { 
+            console.error("Delete of animation pose key not allowed due keyframe minimum length limit policy."); return; 
+        }
+
+    //  Check if current animation data key exist.
+        bcaFrameKeyIndexesArray( animtimerSlider.value );
+        
+        if ( animationDataKeyExist ){
+            for (var i in animation.data.hierarchy){
+                var removedItems = 1;
+                animation.data.hierarchy[i].keys.splice( currentAnimationKeyIndex, removedItems );
+            }
+            console.log("Current animation data key deleted.");
+        //
+            ensureLooping();
+            ensureKeysIndexing();
+            
+        //  Update current animation index key.
+            bcaFrameKeyIndexesArray( animtimerSlider.value );
+            
+        //  Play the frame.
+            timescaleSlider.value = 0;
+            animation.play( animation.currentTime );
+            
+        }
+        
+    //  Get currentAnimationKeyIndex and then define currentAnimationKeyObject.
+        newCurrentBoneSelected();  
+        
+        displayKeymarks(); // IMPORTANT //
+        
+    }
+
+//  Sort keys by time.
+
+    function changeFrameKeyTimeDebuger(k, t){
+        for (var i in animation.data.hierarchy){
+            animation.data.hierarchy[i].keys[k].time = t;
+        }
+    }
+    
+    function sortAnimationDataKeysByTime(){
+        for (var i in animation.data.hierarchy){
+        //  Sort animation data keys by time.
+            animation.data.hierarchy[i].keys.sort( function(a,b){return parseFloat(a.time) - parseFloat(b.time);} );
+        //  Ensure animation data keys indexing.
+            for (var j in animation.data.hierarchy[i].keys){
+                animation.data.hierarchy[i].keys[j].index = Number(j);
+            }
+        }
+        console.log("Sorting Animation Data Keys by time with internal Ensure Keys Indexing completed.");
+    }
+
+</script>
+
+
+<script>
+
+//  timelinerControls.js
+
+    var keysContainerSelector = "#keys-container";
+    var timeContainerSelector = "#time-container";
+    var sliderTimerSelector = "#slider-timer";
+    var outputTimerSelector = "#output-timer";
+    var animationPlayBtnSelector = "#animation-play";
+    var animationAddKeyBtnSelector = "#animation-add";
+    var animationRemoveKeySelector = "#animation-remove";
+    var statusMsgrSelector = "#status-msgr";
+
+    var slidertimer      = $(sliderTimerSelector)[0];
+    var timeContainer  = $(timeContainerSelector)[0];
+    var keyscontainer  = $(keysContainerSelector)[0];
+    var animtimerSlider  = $(sliderTimerSelector)[0];
+    var animtimerOutput  = $(outputTimerSelector)[0];
+    var playButton  = $(animationPlayBtnSelector)[0];
+    var addKey    = $(animationAddKeyBtnSelector)[0];
+    var removeKey = $(animationRemoveKeySelector)[0];
+    var statusMsgr = $(statusMsgrSelector)[0];
+
+//  <!-- onmousedown="staticSliderPressed('timer', true);" onmouseup="staticSliderPressed('timer', false);" -->
+    $(sliderTimerSelector).on("mousedown", function(){ staticSliderPressed("timer", true);  });
+    $(sliderTimerSelector).on("mouseup",   function(){ staticSliderPressed("timer", false); });
+//  <!-- onclick="playAnimation(avatar);" -->
+    $(animationPlayBtnSelector).on("click",   function(){ playAnimation(avatar); });
+//  <!-- onclick="insertNewAnimateDataTimeFrameKey();" -->
+    $(animationAddKeyBtnSelector).on("click",   function(){ insertNewAnimateDataTimeFrameKey(); });
+//  <!-- onclick="deleteCurrentAnimationDataKey();" -->
+    $(animationRemoveKeySelector).on("click",   function(){ deleteCurrentAnimationDataKey(); });
+
+</script>
+
+
+
+    <!-- RUNTIME -->
+
+<script>
+
+//  Initialize play options.
+    loopCheckbox.checked = true;
+    playManual.checked = false;
+    hiddenHelpers.checked = false;
+
+    var frameCount = 0;
+    var mouse = new THREE.Vector2();
+    var avatar;
+    var armature, armatureHelper;
+    var animation;
+    var poseHelper;
+    var normals;
+    var morphs = [];
+    var skins = [];
+
+    var sceneContainerSelector = "#render-container";
+    var animatorContainer = $(sceneContainerSelector)[0];
+    var fontPath = "/animator/v/0.3.0/three/fonts/helvetiker_regular.typeface.json";
+    var meshPath = "/animator/v/0.3.0/models/HF_MannySkeletonLayer-AvatarsBodyKitv04-v0.1.js";
+
+    var container = $(sceneContainerSelector)[0];
+    var scene, camera, renderer, controls;
+    var sceneLights, axisCustomHelper, axisOriginHelper;
+    var projector, keyboard, clock;
+
+        init();
+        animate();
+        
+    //  Animator Inits.
+        initAnimatorAdjustValues();
+        
+    //  Timeliner Inits.
+        initTimeLiner();
+
+    function init(){
+
+    //  Scene.
+        scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2( 0x000000, 0.0001 );
+
+    //  Camera.
+        near = 1; 
+        far = 100000;
+        camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, near, far );
+        camera.position.set( -1.5, 18, 55 );
+        camera.rotation.set( -0.043, -0.035, -0.002 );
+        camera.name = "CAMERA" ;
+
+    //  Scene lights.
+        light0 = newDirectionalLight(0xffffff, 1000, 1000, 1000, 0.5);
+        light1 = newDirectionalLight(0xffffff, 1000, 1000, -1000, 0.5);
+        light2 = newDirectionalLight(0xffffff, -1000, 1000, -1000, 0.5);
+        light3 = newDirectionalLight(0xffffff, -1000, 1000, 1000, 0.5);
+        light4 = newDirectionalLight(0xffffff, 0, -1000, 0, 0.5);
+        scene.add(light0, light1, light2, light3, light4);
+
+    //  Controls.
+        controls = new THREE.EditorControls(camera);
+        controls.center.y = 15;
+        camera.lookAt( controls.center );
+
+    //  Projector.
+    	projector = new THREE.Projector();
+
+    //  Ground Helper.
+        groundHelper = newGroundHelper(100, 2);
+        scene.add(groundHelper);
+
+	//  Skydome.
+    //  var loader = new THREE.TextureLoader();
+    //	skydome = new THREE.Mesh(
+    //		new THREE.SphereGeometry( far * 0.1, 15, 15 ),
+    //		new THREE.MeshBasicMaterial({
+    //			map: loader.load( "/skydomes/skydome.jpg" ),
+    //			color: 0xffffff,
+    //			side: THREE.DoubleSide
+    //		})
+    //	);
+    //	skydome.rotation.y = Math.PI;
+    //	skydome.scale.set(-1, 2, 1);
+    //	scene.add( skydome );
+
+    //  Axis Helper.
+        axisCustomHelper = newCustomAxisHelper(120);
+        axisOriginHelper = newOriginAxisHelper(1000);
+
+    //  Floor.
+    //  var material = new THREE.MeshLambertMaterial( { color:0x8888ff, side:THREE.DoubleSide } );
+    //  floorPlain = new THREE.Mesh( new THREE.PlaneGeometry( 50, 50, 1, 1 ), material );
+    //  floorPlain.position.set( 0, 0, 0 );
+    //  floorPlain.rotation.set( -Math.PI/2, 0, 0 );
+    //  scene.add( floorPlain );
+
+    //  Keyboard controls.
+    //  keyboard = new KeyboardState();
+
+    //  Clock.
+        clock = new THREE.Clock();
+
+    //  Renderer.
+        renderer = new THREE.WebGLRenderer({ 
+            antialias:true, 
+            preserveDrawingBuffer:true // (for taking canvas png snapshots)
+        });
+        renderer.autoClear = true;
+        renderer.shadowMap.enabled = true;
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight ); 
+		animatorContainer.appendChild( renderer.domElement );
+        
+    //  Manny The Skeleton Rigged Mesh.
+        loadSkinnedAnimatedMesh( meshPath, 1 );
+
+    }
+
+    function initAnimatorAdjustValues() {
+    //  INITIALAZE DURATION OUTPUT VALUE.
+        var duration = Number(animtimerSlider.max);
+        durOutput.value = duration;
+    }
+
+    function initTimeLiner() {
+    
+    //  Timeliner.
+        timeContainer.innerHTML = "";
+            
+    //  Settings.
+        var duration = Number(animtimerSlider.max);  //  var duration = 3; // (sec).
+        var defaultTimeScale = Math.floor(timeContainer.offsetWidth / duration); // (pixels).
+    
+    //  Dimensions.
+        var markerTrackHeight = 20;
+        var width = animtimerSlider.offsetWidth; // duration * defaultTimeScale;
+        var height = 50;
+        var timeScale = defaultTimeScale; // number of pixels to 1 second.
+    
+    //  Utilities.
+        function proxy_ctx(ctx) {
+    	//  Creates a proxy 2d context wrapper which 
+    	//  allows the fluent / chaining API.
+        	var wrapper = {};
+        
+        	function proxy_function(c) {
+        		return function() {
+    			//  Warning: this doesn't return value of function call
+        			ctx[c].apply(ctx, arguments);
+        			return wrapper;
+        		};
+        	}
+        
+        	function proxy_property(c) {
+        		return function(v) {
+        			ctx[c] = v;
+        			return wrapper;
+        		};
+        	}
+        
+        	wrapper.run = function(args) {
+        		args(wrapper);
+        		return wrapper;
+        	};
+            
+        	for (var c in ctx) {
+    		//  if (!ctx.hasOwnProperty(c)) continue;
+    		//  console.log(c, typeof(ctx[c]), ctx.hasOwnProperty(c));
+    		//  string, number, boolean, function, object
+        
+        		var type = typeof(ctx[c]);
+        		switch(type) {
+        			case "object":
+        				break;
+        			case "function":
+        				wrapper[c] = proxy_function(c);
+        				break;
+        			default:
+        				wrapper[c] = proxy_property(c);
+        				break;
+        		}
+        	}
+        
+        	return wrapper;
+        }
+    
+    //  View Panel.
+        var frame_start = 0; // this is the current scroll position.
+        
+    //  This class contains the view for the right main section of timeliner
+        var tickMark1;
+        var tickMark2;
+        var tickMark3;
+            
+    //  Subdivison LOD
+    //  timeScale refers to number of pixels per unit
+    //  Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins.    
+        function time_scaled() {
+
+        	var subDivision = 60;
+        
+        	tickMark1 = Math.round( (timeScale / subDivision) * 100 ) / 100;
+        	tickMark2 = 2 * tickMark1;
+        	tickMark3 = 10 * tickMark1;
+        
+        }
+        
+        time_scaled();
+
+    //  Timeline Panel.
+        var dpr = window.devicePixelRatio;
+        var canvas = document.createElement("canvas");
+        canvas.width = width; // * dpr;
+        canvas.height = height; // * dpr;
+        timeContainer.appendChild(canvas);
+        
+        var ctx = canvas.getContext("2d");
+    	var ctx_wrap = proxy_ctx(ctx);
+        
+        var currentTime; // measured in seconds.
+	//  Technically it could be in frames or have it in string format (0:00:00:1-60).
+	
+    	var LEFT_GUTTER = 0;
+    	var i, x, y, il, j;
+        	
+    //	function paint() {
+    
+        //  Background.
+            ctx.fillStyle = "#ffffff";
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+    		ctx.save();
+    		ctx.scale(dpr, dpr);
+            
+            ctx.lineWidth = 2; // options: | 0.5 | 1 | 2 |
+            
+            var units = Math.round(timeScale / tickMark1);
+    		var offsetUnits = (frame_start * timeScale) % units;
+    		var count = Math.ceil( width / units );
+  
+        //  timeScale = pixels to 1 second (40)
+		//  tickMark1 = marks per second (marks / s)
+		//  units = pixels to every mark (40)
+            var t =  Math.floor(units * 100 / timeScale);
+            //debugMode && console.log("t:", t);
+            
+        //  1.Labels only.
+    		for (i = 0; i < count + 1; i++) {
+    			x = i * units + LEFT_GUTTER - offsetUnits;
+                
+    			ctx.fillStyle = "#535353";
+    			ctx.textAlign = "center";
+                
+    			var ti = ( t * i / 100 ).toFixed(2).replace(/\./g, ":");
+    			//debugMode && console.log("t" + i + ":", ti);
+                
+    			ctx.fillText(ti, x, 50);
+    		}
+    
+    		units = Math.round( timeScale / tickMark2 );
+    		count =  Math.round( (width - LEFT_GUTTER + offsetUnits) / units );
+
+        //  2.Marker lines - main.
+    		for (i = 0; i < count + 1; i++) {
+    			ctx.strokeStyle = "#b8b8b8";
+    			ctx.beginPath();
+    			x = i * units + LEFT_GUTTER - offsetUnits;
+    			ctx.moveTo(x, markerTrackHeight + 14);
+    			ctx.lineTo(x, markerTrackHeight - 16);
+    			ctx.stroke();
+    		}
+    
+    		var mul = tickMark3 / tickMark2;
+    		units = Math.round( timeScale / tickMark3 );
+    		count =  Math.round( (width - LEFT_GUTTER + offsetUnits) / units );
+
+        //  3.Small ticks.
+            for (i = 0; i < count + 1; i++) {
+            	if (i % mul === 0) continue;
+            	ctx.strokeStyle = "#b8b8b8";
+            	ctx.beginPath();
+            	x = i * units + LEFT_GUTTER - offsetUnits;
+            	ctx.moveTo(x, markerTrackHeight + 5);
+            	ctx.lineTo(x, markerTrackHeight - 10);
+            	ctx.stroke();
+            }
+        
+    //  }
+        
+    //  paint();
+    }
+
+    function animate(){
+        requestAnimationFrame( animate );
+        update();
+        render();
+    }
+
+    function render(){
+
+        renderer.render( scene, camera );
+    }
+
+    function update() {
+
+        var delta = clock.getDelta();
+        var time = clock.getElapsedTime();
+
+    //  keyboard.update( delta );
+
+    //  Current Slider.
+
+        if (currentSliderStatus){
+        //  debugMode && console.log (currentSliderStatus);
+
+        //  Animator Timer slider.
+            if (currentSlider == animtimerSlider) {
+                currentOutput.value = currentSlider.value;
+                var t = Number(animtimerSlider.value);
+                
+                if (animation) {
+
+                    timescaleSlider.value = 0;
+                    timescaleOutput.value = currentSpeed;
+                    playButton.innerHTML = "Play";
+                    animation.play(t);
+
+                } else {
+                //  Find the nearest lower frame-time in animationData.
+                    var keysArray = animationData.hierarchy[0].keys;
+                    if (keysArray.length > 0){
+                        for (var i in keysArray){
+                            if ( keysArray[i].time <= t) var keyIdx = Number(i);
+                        }
+                    //  console.log(keyIdx, "i:", i);
+                    //  Adjust bones dimensions to nearest time-frame.
+                        for (var j in animationData.hierarchy){
+                            var avatarBone = avatar.skeleton.bones[j];
+                            var animateKey = animationData.hierarchy[j].keys[keyIdx];
+                            avatarBone.position.fromArray(animateKey.pos);
+                            avatarBone.quaternion.fromArray(animateKey.rot);
+                            avatarBone.scale.fromArray(animateKey.scl);
+                        }
+                    }
+                }
+
+                reversePositionValue();
+                reverseRotationValue();
+                reverseNewScaleValue();
+
+            }
+
+        //  Animation Adjust sliders.
+            if (currentSlider == posSliderX || currentSlider == posSliderY || currentSlider == posSliderZ ||
+                currentSlider == rotSliderX || currentSlider == rotSliderY || currentSlider == rotSliderZ ||
+                currentSlider == sclSliderX || currentSlider == sclSliderY || currentSlider == sclSliderZ ){
+                
+                    submitPositionValue();
+                    submitRotationValue();
+                    submitNewScaleValue();
+
+            }
+
+        //  Animation Adjust Uniform Scale slider.
+            if (currentSlider == sclUniformSlider) {
+                submitUniformScaleValue();
+            }
+            
+        //  Animation duration slider.
+            if (currentSlider == durSlider) {
+                submitNewDurationValue();
+                initTimeLiner(); 
+            }
+            
+        } else {
+
+            reversePositionValue();
+            reverseRotationValue();
+            reverseNewScaleValue();
+
+        }
+    
+    //  Current animation.
+
+        if (animation) {
+
+        //  Pause.
+            if ( round(timescaleSlider.value, 1) == 0 ) {
+                $(playButton).text("Play");
+                groundHelper.visible = true;
+                axisCustomHelper.visible = true;
+            }
+
+        //  Play.
+            if ( round(timescaleSlider.value, 1) > 0 ) {
+                $(playButton).text("Pause");
+                if (hiddenHelpers.checked) {
+                    groundHelper.visible = false;
+                    axisCustomHelper.visible = false;
+                }
+            }
+
+        //  Play only at mouse down.
+            if ( !loopCheckbox.checked ){
+                if (animation.currentTime > animation.data.length){
+                    timescaleSlider.value = 0;
+                    timescaleOutput.value = currentSpeed;
+                    animtimerSlider.value = 0;
+                    animtimerOutput.value = 0;
+                    animation.currentTime = 0;
+                    $(playButton).text("Play");
+                    animation.play(0);
+                }
+            }
+
+            if (animation.isPlaying){
+                animation.loop        = loopCheckbox.checked;
+                animation.fps         = round(fpsSlider.value, 0);
+                animation.timeScale   = round(timescaleSlider.value, 1);
+                animtimerSlider.value = animation.currentTime;
+                animtimerOutput.value = animtimerSlider.value;
+            }
+
+        }
+
+    //  Current time scale.
+        if ( round(timescaleSlider.value, 1) > 0) 
+            currentSpeed = round(timescaleSlider.value, 1);
+
+    //  Update before, current and after keys.
+        bcaFrameKeyIndexesArray( animtimerSlider.value ); // IMPORTANT //
+    
+    //  Update Timer color
+        toggleKeyExistClass();
+
+        if (!!armatureHelper) armatureHelper.update();
+        if (!!bvhSkeletonHelper) bvhSkeletonHelper.update();
+
+    //  Animations updates.
+        THREE.AnimationHandler.update( delta ); 
+
+    }
+
+
+    function toggleKeyExistClass(){
+    //  Remove class.
+        if ( !animationDataKeyExist && $(outputTimerSelector).hasClass("key-exist") ) {
+            console.log("remove class key-exist:", $(outputTimerSelector).hasClass("key-exist") );
+            $(outputTimerSelector).toggleClass("key-exist");
+        }
+    //  Add class.
+        if ( animationDataKeyExist && !$(outputTimerSelector).hasClass("key-exist") ) {
+            $(outputTimerSelector).toggleClass("key-exist");
+            console.log( "add class key-exist:", 
+                $(outputTimerSelector).hasClass("key-exist"), 
+                animation.currentTime.toFixed(2).replace(/\./, ":"), "sec." 
+            );
+        }
+    }
+
+</script>
+
+
+    <!-- EVENT LISTENERS -->
+
+<script>
+
+//  Event Listeners.
+
+    $(window).on( "resize", function () {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+    
+    //  controls.handleResize(); //  NOT NEED FOR EDITOR CONTROLS.
+        
+    //  Resize timeliner.
+        initTimeLiner();
+
+    });
+
+	$(document).on( "mousedown", function ( event ) {
+        mouse.x =   ( event.clientX / window.innerWidth ) * 2 - 1;
+       	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        bcaFrameKeyIndexesArray( animtimerSlider.value );
+    //  Get currentAnimationKeyIndex and then define currentAnimationKeyObject.
+        newCurrentBoneSelected();
+
+        if (playManual.checked){
+            timescaleSlider.value = currentSpeed;
+            timescaleOutput.value = currentSpeed;
+        }
+    });
+ 
+	$(document).on( "mouseup", function( event ) {
+        mouse.x =   ( event.clientX / window.innerWidth ) * 2 - 1;
+       	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        if (playManual.checked){
+            timescaleSlider.value = 0;
+            timescaleOutput.value = currentSpeed;
+        }
+    });
+ 
+    $(document).on( 'mousemove', function( event ) {
+        mouse.x =   ( event.clientX / window.innerWidth ) * 2 - 1;
+       	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    });
+
+//    $(window).on( "contextmenu", function (e){
+//        e.preventDefault();
+//    });
+
+//  Controls switch.
+    $(sceneContainerSelector).on("mouseenter", function(e){
+        if (!!controls) controls.enabled = true;
+    });
+    $(sceneContainerSelector).on("mouseleave", function(e){
+        if (!!controls) controls.enabled = false;
+    });
+
+</script>
+
+
+    <!-- IMPORTS -->
+
+<script>
+
+    var loadSkinnedBtnSelector = "#load-skinned-button";
+    var loadSkinnedInputSelector = "#load-skinned";
+
+    $(loadSkinnedBtnSelector).on("click", function(){ $(loadSkinnedInputSelector)[0].click(); });
+    $(loadSkinnedInputSelector).on("change", function(e){ loadJsonSkinnedAnimatedMesh(e); });
+
+    var loadPoseBtnSelector = "#load-pose-button";
+    var loadPoseInputSelector = "#load-pose";
+    
+    $(loadPoseBtnSelector).on("click", function(){ $(loadPoseInputSelector)[0].click(); });
+    $(loadPoseInputSelector).on("change", function(e){ importAnimationPoseKeyFromJSON(e); });
+
+    var loadDataBtnSelector = "#load-data-button";
+    var loadDataInputSelector = "#load-data";
+    
+    $(loadDataBtnSelector).on("click", function(){ $(loadDataInputSelector)[0].click(); });
+    $(loadDataInputSelector).on("change", function(e){ importAnimationDataFromJSON(e); });
+
+
+    function importAnimationDataFromJSON(event){
+    //  var inputfile = document.getElementById("load-data"); ???????
+        if (event.target.files.length == 0) return false;
+        console.log("Importing animation data object from JSON file.");
+
+    //  JSON TEXT CONTENTS READER.
+        var reader = new FileReader();
+        
+    //  FileList object.
+        var file = event.target.files[0];
+        var filename = file.name;
+        var extension = filename.split( '.' ).pop().toLowerCase();
+        var name = filename.split( '.' )[0];
+        
+    //  Read json file as a text string.
+        reader.readAsText(file);
+        
+    //  When reading competed...
+        var contents, dataObject;
+        reader.onloadend = function( event ){
+            contents = event.target.result;
+            dataObject = JSON.parse( contents );
+			console.log("animation dataObject:", dataObject);
+			
+        //  Replace the animation.
+            THREE.AnimationHandler.animations = [];
+            animation = new THREE.Animation( avatar, dataObject );
+            animation.currentTime = 0;
+            durOutput.value = animation.data.length;
+            animtimerSlider.max = animation.data.length;
+            timescaleSlider.value = 0;
+            nameAnimField.value = animation.data.name;
+        //  animation.isPlaying = true;
+            animation.play(0);
+            playButton.innerHTML = "Play";
+        //
+            console.log("Animation created:", animation);
+            
+            displayKeymarks(); // IMPORTANT //
+        };
+    }
+    
+    function importAnimationPoseKeyFromJSON(event){
+    //  var inputfile = document.getElementById("load-pose"); ?????????
+        if (event.target.files.length == 0) return false;
+        console.log("Importing animation pose keys from JSON file.");
+
+    //  JSON TEXT CONTENTS READER.
+        var reader = new FileReader();
+        
+    //  FileList object.
+        var file = event.target.files[0];
+        var filename = file.name;
+		var extension = filename.split( '.' ).pop().toLowerCase();
+		var name = filename.split( '.' )[0];
+		
+		console.log("file:", file);
+		console.log("filename:", filename);
+		console.log("extension:", extension);
+		console.log("name:", name);
+        
+//      1. First we read json file as text.
+
+    //  Read json file as a text string.
+        reader.readAsText(file);
+        
+    //  When reading competed...
+        reader.onloadend = function(event){
+            //console.log(event.target.result);
+            var contents = event.target.result;
+        //  Pose Json data for pose animation collection input.
+            var PoseJsonData = event.target.result;
+            //console.log("contents:", contents);
+            console.log("json contents readed as text string.");
+            
+//      2. Then we parse json string as json data with JSON parser.
+        //  Parse json contents string as json data.
+            var poseArray = JSON.parse( contents );
+            console.log("json contents parsed as poseArray:", poseArray);
+
+			bcaFrameKeyIndexesArray( animtimerSlider.value );
+			if (animationDataKeyExist){
+			//  Replace key if exist.
+                for (var i in poseArray){
+                    animation.data.hierarchy[i].keys[currentAnimationKeyIndex].pos = poseArray[i].pos;
+                    animation.data.hierarchy[i].keys[currentAnimationKeyIndex].rot.fromArray(poseArray[i].rot);
+                    animation.data.hierarchy[i].keys[currentAnimationKeyIndex].scl = poseArray[i].scl;
+                }
+                console.log("Animation pose key", currentAnimationKeyIndex, "replaced at", animtimerSlider.value, "sec.", animation.data.hierarchy);
+			}
+			else if (!animationDataKeyExist) {
+			//  Insert key if not exists.
+                var b = bcaAnimationDataIndexKeys[0];
+                var c = bcaAnimationDataIndexKeys[1];
+                var a = bcaAnimationDataIndexKeys[2];
+                if ( b &&  a ) { idx = b; spl = a; }          // splice to next key index.
+                else if (!b &&  a) { idx = 0; spl = a; }      // splice to next key index.
+                else if ( b && !a) { idx = b; spl = b + 1; }  // push to end of keys array.
+                else if (!b && !a) { idx = 0; spl = 0; }      // keys array is empty. unshift to beginning of keys array.
+                
+                for (var i in animation.data.hierarchy){
+                    var newKey = {"index":spl, "pos":[], "rot":new THREE.Quaternion(), "scl":[], "time":Number(animtimerSlider.value)};
+                    newKey.pos = poseArray[i].pos;
+                    newKey.rot.fromArray(poseArray[i].rot);
+                    newKey.scl = poseArray[i].scl;
+                //  Add new key in animation data hierarchy keys array.
+                    if (spl < animation.data.hierarchy[i].keys.length) 
+                        animation.data.hierarchy[i].keys.splice(spl, 0, newKey);      // add new key before the after key.
+                    else animation.data.hierarchy[i].keys.push(newKey);               // add new key at end of keys array.
+                //  Ensure keys indexing.
+                    for (var j in animation.data.hierarchy[i].keys){
+                        animation.data.hierarchy[i].keys[j].index = Number(j);
+                    }
+                }
+                console.log("New animation data key imported at", animtimerSlider.value, "sec.", animation.data.hierarchy);
+            }
+
+            ensureLooping();
+            ensureKeysIndexing();
+            bcaFrameKeyIndexesArray( animtimerSlider.value );
+            console.log("Animation pose key completed.");
+            
+            animation.isPlaying = true;
+            timescaleSlider.value = 0;
+            animation.play( animation.currentTime );
+            playButton.innerHTML = "Play";
+            
+        //  Update bca indexes to get the new currentAnimationKeyIndex.
+            bcaFrameKeyIndexesArray( animtimerSlider.value );
+            
+        //  Get currentAnimationKeyIndex and then define currentAnimationKeyObject.
+            newCurrentBoneSelected();
+
+            displayKeymarks(); // IMPORTANT //
+
+        };
+    }
+
+</script>
+
+    <!-- EXPORTS -->
+
+<script>
+
+    var exportDataBtnSelector = "#export-data";
+    $(exportDataBtnSelector).on("click", function(){
+        saveJSONtoFile( exportAnimationDataAsJSON() );
+    });
+    var exportPoseBtnSelector = "#export-pose";
+    $(exportPoseBtnSelector).on("click", function(){
+        saveJSONtoFile( exportAnimationPoseAsJSON() );
+    });
+
+    function exportAnimationDataAsJSON(){
+        console.log("Exporting animation data as JSON.");
+        ensureLooping();
+        ensureKeysIndexing();
+        bcaFrameKeyIndexesArray( animtimerSlider.value );
+        
+        var jsonExport;
+        if (animationDataKeyExist) {
+            var dataExport = {"name":"", "fps":0, "length":0, "hierarchy":[]}
+            dataExport.name = animation.data.name;
+            dataExport.fps = animation.data.fps;
+            dataExport.length = animation.data.length;
+            
+            for (var i in animation.data.hierarchy){
+                var keysExport = {keys:[]}
+                for (var j in animation.data.hierarchy[i].keys){
+                    var key = {"pos":[], "rot":[], "scl":[], "time":0};
+                    key.pos = animation.data.hierarchy[i].keys[j].pos;
+                    key.rot = animation.data.hierarchy[i].keys[j].rot.toArray();
+                    key.scl = animation.data.hierarchy[i].keys[j].scl;
+                    key.time = animation.data.hierarchy[i].keys[j].time;
+                    keysExport.keys.push(key);
+                }
+                dataExport.hierarchy.push(keysExport);
+            }
+            console.log(dataExport);
+        //
+            jsonExport = JSON.stringify(dataExport);
+            console.log(jsonExport);
+        //
+            alert("Animation data exported succesfully.");
+        }
+        else {
+            var a = "Current animation data key does not exists.";
+            var b = "You can not export animation data.";
+            console.log(a, b, "\n" + jsonExport, "returned.");
+            alert(a + "\n" + b);
+        }
+        return jsonExport;
+    }
+    
+    function exportAnimationPoseAsJSON(){
+        console.log("Exporting animation key Pose as JSON.");
+        var poseExport = [];
+        for (var i in animation.hierarchy) {
+        //  Create a new animation data key with current time bones values.
+        //  var poseKey = {"index":0, "pos":[], "rot":[], "scl":[], "time":0};
+            var poseKey = {"pos":[], "rot":[], "scl":[]};
+        //  Get bones values at current time from animation.hierarchy.
+            poseKey.pos = animation.hierarchy[i].position.toArray();
+            poseKey.rot = (animation.hierarchy[i].quaternion).toArray();
+            poseKey.scl = animation.hierarchy[i].scale.toArray();
+            poseExport.push(poseKey);
+        }
+        poseExport = JSON.stringify(poseExport);
+        console.log(poseExport);
+        alert("Animation pose exported succesfully.");
+        return poseExport;
+    }
+    
+    function exportAnimationExistedKeyPoseAsJSON(keyIdx){
+        console.log("Exporting animation existed key Pose as JSON.");
+        // ensureLooping();
+        ensureKeysIndexing();
+        bcaFrameKeyIndexesArray( animtimerSlider.value );
+        
+        if (animationDataKeyExist) {
+            var poseExport = [];
+            for (var i in animation.data.hierarchy){
+            //  poseExport.push(animation.data.hierarchy[i].keys[currentAnimationKeyIndex])
+                var poseKey = {"pos":[], "rot":[], "scl":[]};
+            //  Get bones values at current time from animation.data.hierarchy.
+                poseKey.pos = animation.data.hierarchy[i].keys[keyIdx].pos;
+                poseKey.rot = animation.data.hierarchy[i].keys[keyIdx].rot.toArray();
+                poseKey.scl = animation.data.hierarchy[i].keys[keyIdx].scl;
+                poseExport.push(poseKey);
+            }
+            poseExport = JSON.stringify(poseExport);
+            console.log(poseExport);
+            return poseExport;
+        }
+        else if (!animationDataKeyExist) {
+            console.log("Current animation data key does not exists.", "You can not export animation pose keys.");
+            return undefined;
+        }
+    }
+    
+    
+    function saveJSONtoFile(jsonData){
+        if (jsonData){
+            var blob = new Blob([jsonData], {type: "application/json"});
+            var url  = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            
+            a.download = "exported json.js";
+            a.href = url;
+            a.onclick = destroyClickedElement;
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+        }
+    }
+    
+    
+    function destroyClickedElement(event) {
+    	document.body.removeChild(event.target);
+    }
+
+</script>
+
+</body>
+</html>
