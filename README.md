@@ -1,3 +1,3 @@
 # animator3
 
-animator editor v0.3
+3D animator editor v0.3
