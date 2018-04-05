@@ -4,21 +4,21 @@
 
     <title>animator-editor v0.3.0</title>
     <link rel="icon" type="image/png" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/bootbox-dialoges.css">
-    <link rel="stylesheet" href="/css/buttons.css">
-    <link rel="stylesheet" href="/css/side-panels.css">
-    <link rel="stylesheet" href="/css/messg.css" >
-    <link rel="stylesheet" href="/css/spectrum.css">
-    <link rel="stylesheet" href="/css/colorpicker.css">
-    <link rel="stylesheet" href="/css/spinner.css">
-    <link rel="stylesheet" href="/css/jquery-ui.css">
-    <link rel="stylesheet" href="/css/alerts.css">
-    <link rel="stylesheet" href="/css/panel-ui.css">
-    <link rel="stylesheet" href="/css/anywhere3d.css">
+    <link rel="stylesheet" href="css/bootbox-dialoges.css">
+    <link rel="stylesheet" href="css/buttons.css">
+    <link rel="stylesheet" href="css/side-panels.css">
+    <link rel="stylesheet" href="css/messg.css" >
+    <link rel="stylesheet" href="css/spectrum.css">
+    <link rel="stylesheet" href="css/colorpicker.css">
+    <link rel="stylesheet" href="css/spinner.css">
+    <link rel="stylesheet" href="css/jquery-ui.css">
+    <link rel="stylesheet" href="css/alerts.css">
+    <link rel="stylesheet" href="css/panel-ui.css">
+    <link rel="stylesheet" href="css/anywhere3d.css">
 
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/jquery-ui.js"></script>
-    <script src="/js/w3.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <script src="js/w3.js"></script>
     <script> debugMode = true;</script>
 
 </head>
@@ -390,63 +390,21 @@
 
         <!-- THREEJS -->
 
-<script src="/animator/v/0.3.0/three/three.js"></script>
-<script src="/animator/v/0.3.0/three/EditorControls.js"></script>
-<script src="/animator/v/0.3.0/three/FirstPersonControls.js"></script>
-<script src="/animator/v/0.3.0/three/Detector.js"></script>
-<script src="/animator/v/0.3.0/three/Projector.js"></script>
-<!-- script src="/animator/v/0.3.0/three/KeyboardState.js"></script -->
-<script src="/animator/v/0.3.0/three/Animation.js"></script>
-<script src="/animator/v/0.3.0/three/AnimationHandler.js"></script>
-<script src="/animator/v/0.3.0/three/KeyFrameAnimation.js"></script>
-<script src="/animator/v/0.3.0/three/BVHImport.js"></script>
+<script src="three/three.js"></script>
+<script src="three/EditorControls.js"></script>
+<script src="three/FirstPersonControls.js"></script>
+<script src="three/Detector.js"></script>
+<script src="three/Projector.js"></script>
+<script src="three/Animation.js"></script>
+<script src="three/AnimationHandler.js"></script>
+<script src="three/KeyFrameAnimation.js"></script>
+<script src="three/BVHImport.js"></script>
 
-<script src="/animator/v/0.3.0/js/SceneHelpers.js"></script>
-<script src="/animator/v/0.3.0/js/SidePanels.js"></script>
-<script src="/animator/v/0.3.0/js/simpleAddEvent.js"></script>
-
-        <!-- COMPONENTS -->
-
-<!-- script src="/animator/v/0.3.0/components/animatorComponents.js"></script -->
+<script src="js/SceneHelpers.js"></script>
+<script src="js/SidePanels.js"></script>
+<script src="js/simpleAddEvent.js"></script>
 
 <script>
-
-// animatorComponents.js
-/*
-    var bonesHolderSelector = "#bones-holder";
-    var selectBoneComponent = "/animator/v/0.3.0/components/select-bone.html";
-    $(bonesHolderSelector).load(selectBoneComponent, function(responseText, textStatus, jqXHR){
-        debugMode && console.log("selectBone loaded:", textStatus);
-    });
-
-
-    var positionHolderSelector = "#position-holder";
-    var positionControlsComponent = "/animator/v/0.3.0/components/position-controls.html";
-    $(positionHolderSelector).load(positionControlsComponent, function(responseText, textStatus, jqXHR){
-        debugMode && console.log("positionControls loaded:", textStatus);
-    });
-
-
-    var rotationHolderSelector = "#rotation-holder";
-    var rotationControlsComponent = "/animator/v/0.3.0/components/rotation-controls.html";
-    $(rotationHolderSelector).load(rotationControlsComponent, function(responseText, textStatus, jqXHR){
-        debugMode && console.log("rotationControls loaded:", textStatus);
-    });
-
-
-    var scaleHolderSelector = "#scale-holder";
-    var scaleControlsComponent = "/animator/v/0.3.0/components/scale-controls.html";
-    $(scaleHolderSelector).load(scaleControlsComponent, function(responseText, textStatus, jqXHR){
-        debugMode && console.log("scaleControls loaded:", textStatus);
-    });
-
-
-    var settingsHolderSelector = "#settings-holder";
-    var animationSettingsComponent = "/animator/v/0.3.0/components/animation-settings.html";
-    $(settingsHolderSelector).load(animationSettingsComponent, function(responseText, textStatus, jqXHR){
-        debugMode && console.log("animationSettings loaded:", textStatus);
-    });
-*/
 
 //  AnimatorHelpers.js
 
@@ -504,22 +462,7 @@
         sclUniformOutput.value = sclOutputY.value;
 
     }
-/*
-    function staticSliderPressed(identifier, status){ 
-    //  debugMode && console.log("staticSliderPressed:", status);
-        currentSlider = $( "#slider-" + identifier )[0];
-        currentOutput = $( "#output-" + identifier )[0];
-        currentSliderStatus = status;
-    }
 
-    function dynamicSliderPressed(identifier, status, restore){ 
-    //  debugMode && console.log("dynamicSliderPressed:", status);
-        currentSlider = $( "#slider-" + identifier )[0];
-        currentOutput = $( "#output-" + identifier )[0];
-        currentSliderStatus = status;
-        currentSlider.value = restore;
-    }
-*/
     function staticSliderPressed(identifier, status){ 
     //  debugMode && console.log("staticSliderPressed:", status);
         currentSlider = $( "#slider-" + identifier )[0];
@@ -676,14 +619,6 @@
         }
     }
 
-/*
-    function initSlider(slider, min, max, step, value){
-        slider.min = min;
-        slider.max = max;
-        slider.step = step;
-        if (value != null) slider.value = value;
-    }
-*/
 </script>
 
 
@@ -935,10 +870,6 @@
         var sy = parseFloat( sclSliderY.value ); // number
         var sz = parseFloat( sclSliderZ.value ); // number
 
-    //  sx = Number(sx.toFixed(3));          // number
-    //  sy = Number(sy.toFixed(3));          // number
-    //  sz = Number(sz.toFixed(3));          // number
-        
     //  currentDataBone.keys[currentAnimationKeyIndex].scl[0]
         currentDataBone.keys[currentAnimationKeyIndex].scl[0] *= sx;    // number
         currentDataBone.keys[currentAnimationKeyIndex].scl[1] *= sy;    // number
@@ -976,9 +907,6 @@
     //  Submit value to object.
         var s = round( sclUniformSlider.value, 3 );
 
-        //s = s * currentDataBone.keys[currentAnimationKeyIndex].scl[1];
-        //s = Number(s.toFixed(3));
-        
         currentDataBone.keys[currentAnimationKeyIndex].scl[0] *= s; // number
         currentDataBone.keys[currentAnimationKeyIndex].scl[1] *= s; // number
         currentDataBone.keys[currentAnimationKeyIndex].scl[2] *= s; // number
@@ -994,14 +922,7 @@
         sclOutputZ.value = s.toFixed(1);        // string
         sclUniformOutput.value = s.toFixed(1);  // string
     }
-/*
-    function initSlider(slider, min, max, step, value){
-        slider.min = min;
-        slider.max = max;
-        slider.step = step;
-        if (value != null) slider.value = value;
-    }
-*/
+
 </script>
 
 
@@ -1134,12 +1055,6 @@
         submitAnimationName(); 
     });
 
-
-
-
-
-
-    
     function submitNewDurationValue(){
         var value = Number(animtimerSlider.value);
         var min = 1;  // sec.
@@ -1207,15 +1122,6 @@
     function submitAnimationName(){
         animation.data.name = $(animationNameSelector).val();
     }
-
-/*
-    function initSlider(slider, min, max, step, value){
-        slider.min = min;
-        slider.max = max;
-        slider.step = step;
-        if (value != null) slider.value = value;
-    }
-*/
 
     var avatarHelperSelector = "#avatar-helper";
     var bonesHelperSelector = "#bones-helper";
@@ -1405,8 +1311,6 @@
 
 </script>
 
-    <!-- SNIPPETS -->
-
 <script>
 
     var animatorEditorLeftPanelSelector  = "#animator-editor-left-panel";
@@ -1426,10 +1330,6 @@
     var scaleHolderSelector    = "#scale-holder";
     var optionsHolderSelector  = "#options-holder";
 
-//  DEV-NOTE: $(function(){}); // sortcut of $(document).on("ready", function(){});
-</script>
-
-<script>
 
 // AnimatorEditor.js
 
@@ -2446,8 +2346,8 @@
 
     var sceneContainerSelector = "#render-container";
     var animatorContainer = $(sceneContainerSelector)[0];
-    var fontPath = "/animator/v/0.3.0/three/fonts/helvetiker_regular.typeface.json";
-    var meshPath = "/animator/v/0.3.0/models/HF_MannySkeletonLayer-AvatarsBodyKitv04-v0.1.js";
+    var fontPath = "three/fonts/helvetiker_regular.typeface.json";
+    var meshPath = "models/HF_MannySkeletonLayer-AvatarsBodyKitv04-v0.1.js";
 
     var container = $(sceneContainerSelector)[0];
     var scene, camera, renderer, controls;
